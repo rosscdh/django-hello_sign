@@ -1,0 +1,1 @@
+-e git+https://github.com/rosscdh/HelloSignApi.git#egg=HelloSignApi

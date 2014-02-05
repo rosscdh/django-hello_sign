@@ -1,11 +1,20 @@
 # -*- coding: utf-8 -*-
 import os, sys
 from django.conf import settings
+from django.core.management import call_command
 
 DIRNAME = os.path.dirname(__file__)
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(DIRNAME, 'database.db'),
+    }
+}
+
 settings.configure(DEBUG = True,
-                   DATABASE_ENGINE = 'sqlite3',
-                   DATABASE_NAME = os.path.join(DIRNAME, 'database.db'),
+                   DATABASES=DATABASES,
+                   ROOT_URLCONF='hello_sign.tests.urls',
                    INSTALLED_APPS = ('django.contrib.auth',
                                      'django.contrib.contenttypes',
                                      'django.contrib.sessions',
@@ -14,8 +23,10 @@ settings.configure(DEBUG = True,
                                      'hello_sign.tests',))
 
 
-from django.test.simple import run_tests
+from django.test.simple import DjangoTestSuiteRunner
 
-failures = run_tests(['hello_sign',], verbosity=1)
+call_command('syncdb', interactive=False)
+
+failures = DjangoTestSuiteRunner().run_tests(['hello_sign',], verbosity=1)
 if failures:
     sys.exit(failures)

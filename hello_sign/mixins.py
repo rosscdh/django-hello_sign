@@ -89,7 +89,7 @@ class HelloSignModelMixin(ModelContentTypeMixin):
         """
         return [{'name': u.get_full_name(), 'email': u.email} for u in [self.workspace.lawyer, self.user]]
 
-    def hs_document(self, html):
+    def hs_document(self):
         """
         Return the document to be senf for signing
         """
@@ -100,7 +100,7 @@ class HelloSignModelMixin(ModelContentTypeMixin):
         Return the HelloSign service instance with all required to send for
         signing
         """
-        return HelloSignService(document=self.hs_document(html=self.html()),
+        return HelloSignService(document=self.hs_document(),
                                     invitees=self.hs_signers(),
                                     subject=self.hs_subject(),
                                     message=self.hs_message())

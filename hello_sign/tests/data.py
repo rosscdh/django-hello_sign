@@ -1,4 +1,39 @@
 # -*- coding: utf-8 -*-
+import json
+
+HELLOSIGN_200_RESPONSE = json.dumps({   u'signature_request': {   u'cc_email_addresses': [],
+                              u'custom_fields': [],
+                              u'details_url': u'https://www.hellosign.com/home/manage?locate=79d41104dcf47068457c813615516f92c4ee6d63',
+                              u'has_error': False,
+                              u'is_complete': False,
+                              u'message': u'This is a test singing please delete',
+                              u'original_title': u'Test Signing',
+                              u'requester_email_address': u'founders@lawpal.com',
+                              u'response_data': [],
+                              u'signature_request_id': u'79d41104dcf47068457c813615516f92c4ee6d63',
+                              u'signatures': [   {   u'last_reminded_at': None,
+                                                     u'last_viewed_at': None,
+                                                     u'order': None,
+                                                     u'signature_id': u'4555c5f356f8bdebb3bc7204d78af8ae',
+                                                     u'signed_at': None,
+                                                     u'signer_email_address': u'ross+customer@lawpal.com',
+                                                     u'signer_name': u'Ross Customer',
+                                                     u'status_code': u'awaiting_signature'},
+                                                 {   u'last_reminded_at': None,
+                                                     u'last_viewed_at': None,
+                                                     u'order': None,
+                                                     u'signature_id': u'a9c0ca82240d920c4303e5b56e2ad191',
+                                                     u'signed_at': None,
+                                                     u'signer_email_address': u'ross+lawyer@lawpal.com',
+                                                     u'signer_name': u'Ross Tech Lawyer',
+                                                     u'status_code': u'awaiting_signature'}],
+                              u'signing_redirect_url': None,
+                              u'signing_url': u'https://www.hellosign.com/editor/sign?guid=79d41104dcf47068457c813615516f92c4ee6d63',
+                              u'subject': u'Test Signing',
+                              u'test_mode': True,
+                              u'title': u'/var/folders/nb/w1bxhlbd7jscn56p6gksdbcm0000gn/T/tmp7Xf1UC.docx'}})
+
+
 HELLOSIGN_WEBHOOK_EVENT_DATA = {
     "event": {
         "event_time": "1348177752", 
@@ -32,3 +67,4 @@ HELLOSIGN_WEBHOOK_EVENT_DATA = {
         "title": "NDA with Acme Co."
     }
 }
+

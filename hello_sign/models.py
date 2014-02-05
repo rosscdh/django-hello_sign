@@ -22,7 +22,7 @@ class HelloSignLog(models.Model):
     """
     Model to store the HelloSign Webhook Events
     """
-    request = models.ForeignKey('sign.HelloSignRequest')
+    request = models.ForeignKey('hello_sign.HelloSignRequest')
     event_type = models.CharField(max_length=32, db_index=True)
     dateof = models.DateTimeField(auto_now=False, auto_now_add=True, db_index=True)
     data = JSONField(default={})

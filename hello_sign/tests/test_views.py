@@ -1,22 +1,28 @@
 # -*- coding: utf-8 -*-
-from django.test import TestCase
-from django.test.client import Client
+from django.core.cache import cache
+from django.dispatch import receiver
+from django.test import TestCase, Client
 from django.core.urlresolvers import reverse
 
-from model_mommy import mommy
-
-from toolkit.casper.workflow_case import BaseScenarios
-from toolkit.apps.workspace.tests.data import HELLOSIGN_200_RESPONSE
-from toolkit.apps.engageletter.models import EngagementLetter
 
 from ..models import HelloSignRequest, HelloSignLog
 from ..views import HelloSignWebhookEventHandler
-from .data import HELLOSIGN_WEBHOOK_EVENT_DATA
+from ..signals import hellosign_webhook_event_recieved
+
+from .data import HELLOSIGN_200_RESPONSE, HELLOSIGN_WEBHOOK_EVENT_DATA
+from .models import TestMonkeyModel
 
 import json
 
+"""
+Test signal listner to handle the signal fired event
+"""
+@receiver(hellosign_webhook_event_recieved)
+def on_hellosign_webhook_event_recieved(**kwargs):
+    cache.set('hellosign_webhook_event_recieved_keys', kwargs.keys())
 
-class HelloSignWebhookEventHandlerTest(BaseScenarios, TestCase):
+
+class HelloSignWebhookEventHandlerTest(TestCase):
     """
     Test the handleing of HelloSign webhook events
 
@@ -31,22 +37,15 @@ class HelloSignWebhookEventHandlerTest(BaseScenarios, TestCase):
 
     def setUp(self):
         super(HelloSignWebhookEventHandlerTest, self).setUp()
-        self.basic_workspace()
+        self.monkey = TestMonkeyModel.objects.create(slug='test-monkey')
+        self.monkey_content_object = self.monkey.get_content_type_object()
 
-        signature_request_id = HELLOSIGN_WEBHOOK_EVENT_DATA['signature_request'].get('signature_request_id')
+        self.signature_request_id = HELLOSIGN_WEBHOOK_EVENT_DATA['signature_request'].get('signature_request_id')
 
-        self.engageletter = mommy.make('engageletter.EngagementLetter',
-                                        slug='d1c545082d1241849be039e338e47aa0',
-                                        status=EngagementLetter.STATUS.customer_sign_and_send)
-
-        content_object = self.engageletter.get_content_type_object()
-
-        self.subject.tool = mommy.make('sign.HelloSignRequest',
-                                       content_object_type=content_object,
-                                       object_id=self.engageletter.pk,
-                                       signature_request_id=signature_request_id,
-                                       data=HELLOSIGN_200_RESPONSE)
-        
+        self.request = HelloSignRequest.objects.create(content_object_type=self.monkey_content_object,
+                                                       object_id=self.monkey.pk,
+                                                       signature_request_id=self.signature_request_id,
+                                                       data=HELLOSIGN_200_RESPONSE)
 
     def test_response_contains_required_text(self):
         # emulate a HelloSign Post
@@ -55,12 +54,17 @@ class HelloSignWebhookEventHandlerTest(BaseScenarios, TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.content, 'Hello API Event Received')
 
+    def test_hellosign_webhook_event_recieved_fired(self):
+        # emulate a HelloSign Post
+        resp = self.client.post(reverse('sign:hellosign_webhook_event'), json.dumps(HELLOSIGN_WEBHOOK_EVENT_DATA), content_type="application/json")
+        self.assertEqual(cache.get('hellosign_webhook_event_recieved_keys'), ["hellosign_log", "signal", "signature_request_id", "hellosign_request", "event_type", "data", "sender"])
+
     def test_response_creates_correct_objects(self):
         # emulate a HelloSign Post
         resp = self.client.post(reverse('sign:hellosign_webhook_event'), json.dumps(HELLOSIGN_WEBHOOK_EVENT_DATA), content_type="application/json")
 
-        hsrequest_object = HelloSignRequest.objects.get(content_object_type=self.engageletter.get_content_type_object(),
-                                     object_id=self.engageletter.pk)
+        hsrequest_object = HelloSignRequest.objects.get(content_object_type=self.monkey_content_object,
+                                     object_id=self.monkey.pk)
         hs_logs = hsrequest_object.hellosignlog_set.all()
         log = hs_logs[0]
 

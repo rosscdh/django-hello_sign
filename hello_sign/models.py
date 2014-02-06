@@ -17,6 +17,13 @@ class HelloSignRequest(models.Model):
         # newest first
         ordering = ['-dateof']
 
+    def __unicode__(self):
+        return u'HelloSign Request for %s' % self.source_object
+
+    @property
+    def source_object(self):
+        return self.content_object_type.get_object_for_this_type(pk=self.object_id)
+
 
 class HelloSignLog(models.Model):
     """

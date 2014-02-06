@@ -19,6 +19,7 @@ class HelloSignService(object):
         self.HelloSignSignatureClass = kwargs.get('HelloSignSignatureClass', HelloSignEmbeddedDocumentSignature)
 
         self.invitees = invitees
+        self.title = kwargs.get('title', self.document.name)
         self.user = kwargs.get('user', None)
         self.subject = kwargs.get('subject', None)
         self.message = kwargs.get('message', None)
@@ -29,7 +30,7 @@ class HelloSignService(object):
             logger.critical("No settings.HELLOSIGN_AUTH has been specified. Please provide them")
 
     def send_for_signing(self, **kwargs):
-        signature = self.HelloSignSignatureClass(title=self.document.name, subject=self.subject, message=self.message)
+        signature = self.HelloSignSignatureClass(title=self.title, subject=self.subject, message=self.message)
 
         # Add invitees
         for i in self.invitees:

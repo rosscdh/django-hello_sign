@@ -89,6 +89,12 @@ class HelloSignModelMixin(ModelContentTypeMixin):
         """
         return [{'name': u.get_full_name(), 'email': u.email} for u in [self.workspace.lawyer, self.user]]
 
+    def hs_document_title(self):
+        """
+        Method to set the document title, displayed in the HelloSign Interface
+        """
+        raise Exception('You must override this method and return the title of the document to send to HelloSign')
+
     def hs_document(self):
         """
         Return the document to be senf for signing
@@ -101,9 +107,11 @@ class HelloSignModelMixin(ModelContentTypeMixin):
         signing
         """
         return HelloSignService(document=self.hs_document(),
-                                    invitees=self.hs_signers(),
-                                    subject=self.hs_subject(),
-                                    message=self.hs_message())
+                                title=self.hs_document_title(),
+                                invitees=self.hs_signers(),
+                                subject=self.hs_subject(),
+                                message=self.hs_message())
+
     def send_for_signing(self):
         """
         Primary method used to send a document for signing

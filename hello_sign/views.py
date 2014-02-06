@@ -42,6 +42,10 @@ class HelloSignWebhookEventHandler(CreateView):
         return data
 
     def post(self, request, *args, **kwargs):
+        """
+        NB: HelloSign sends a post object with key "json" that is set to an actual
+        string of JSON
+        """
         data = self.extract_json_data(body=request.POST.get('json'))  # extract json
         event_type = data['event'].get('event_type')
         signature_request_id = data['signature_request'].get('signature_request_id')

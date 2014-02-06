@@ -47,21 +47,32 @@ class HelloSignWebhookEventHandlerTest(TestCase):
                                                        signature_request_id=self.signature_request_id,
                                                        data=HELLOSIGN_200_RESPONSE)
 
+    def get_webhook_event_post_data(self):
+        """
+        NB: HelloSign wraps the json data in another json object called "json"
+        i.e. HelloSign sends a post object with key "json" that is set to an actual
+        string of JSON
+        """
+        return { 'json': json.dumps(HELLOSIGN_WEBHOOK_EVENT_DATA) }
+
+    def get_hellosign_post_response(self):
+        return self.client.post(reverse('sign:hellosign_webhook_event'), self.get_webhook_event_post_data())
+
     def test_response_contains_required_text(self):
         # emulate a HelloSign Post
-        resp = self.client.post(reverse('sign:hellosign_webhook_event'), json.dumps(HELLOSIGN_WEBHOOK_EVENT_DATA), content_type="application/json")
+        resp = self.get_hellosign_post_response()
 
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.content, 'Hello API Event Received')
 
     def test_hellosign_webhook_event_recieved_fired(self):
         # emulate a HelloSign Post
-        resp = self.client.post(reverse('sign:hellosign_webhook_event'), json.dumps(HELLOSIGN_WEBHOOK_EVENT_DATA), content_type="application/json")
+        resp = self.get_hellosign_post_response()
         self.assertEqual(cache.get('hellosign_webhook_event_recieved_keys'), ["hellosign_log", "signal", "signature_request_id", "hellosign_request", "event_type", "data", "sender"])
 
     def test_response_creates_correct_objects(self):
         # emulate a HelloSign Post
-        resp = self.client.post(reverse('sign:hellosign_webhook_event'), json.dumps(HELLOSIGN_WEBHOOK_EVENT_DATA), content_type="application/json")
+        resp = self.get_hellosign_post_response()
 
         hsrequest_object = HelloSignRequest.objects.get(content_object_type=self.monkey_content_object,
                                      object_id=self.monkey.pk)

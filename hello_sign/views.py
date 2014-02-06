@@ -26,7 +26,6 @@ class HelloSignWebhookEventHandler(CreateView):
 
     def extract_json_data(self, body):
         logger.debug('Post from HelloSign: %s' % body)
-
         try:
             data = json.loads(body)
 
@@ -43,7 +42,7 @@ class HelloSignWebhookEventHandler(CreateView):
         return data
 
     def post(self, request, *args, **kwargs):
-        data = self.extract_json_data(body=request.body)  # extract json
+        data = self.extract_json_data(body=request.POST.get('json'))  # extract json
         event_type = data['event'].get('event_type')
         signature_request_id = data['signature_request'].get('signature_request_id')
 

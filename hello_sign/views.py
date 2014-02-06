@@ -25,6 +25,8 @@ class HelloSignWebhookEventHandler(CreateView):
     template_name = 'sign/hellosign/webhook_create_event.html'
 
     def extract_json_data(self, body):
+        logger.debug('Post from HelloSign: %s' % body)
+
         try:
             data = json.loads(body)
 

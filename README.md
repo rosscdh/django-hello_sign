@@ -32,6 +32,40 @@ urlpatterns = patterns('',
 
 ```
 
+Use the HelloSignModelMixin on your document model and call
+
+```
+my_object = MyObject.objects.get(slug='test-document-for-signing')
+resp = my_object.send_for_signing()
+```
+
+Remember that you must override the method "hs_document" from the Mixin on
+your object
+
+__myobject.models.py__
+
+```
+class MyObject(models.Model):
+    def hs_document():
+        document = function_that_returns_a_file_object_for_sending_to_hellosign()
+        return document
+```
+
+The function that returns the File object
+"function_that_returns_a_file_object_for_sending_to_hellosign" in this case.
+can be a class method or indeed a seperate service that compiles html or some
+other markup format into a pdf/doc/docx file
+
+
+Helpers
+-------------
+
+Management Command to register the webhook callback endpoint at HelloSign
+
+```
+python manage.py hellosign_set_callback :url_to_your_site_for_testing_or_prod
+```
+
 
 Run the tests
 -------------

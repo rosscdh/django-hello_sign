@@ -39,16 +39,18 @@ my_object = MyObject.objects.get(slug='test-document-for-signing')
 resp = my_object.send_for_signing()
 ```
 
-Remember that you must override the method "hs_document" from the Mixin on
-your object
+Remember that you must override the method "hs_document" & "hs_title" on
+the object that uses the HelloSignModelMixin
 
 __myobject.models.py__
 
 ```
-class MyObject(models.Model):
+class MyObject(HelloSignModelMixin, models.Model):
+    def hs_title():
+        return function_or_string_for_title()
+
     def hs_document():
-        document = function_that_returns_a_file_object_for_sending_to_hellosign()
-        return document
+        return function_that_returns_a_file_object_for_sending_to_hellosign()
 ```
 
 The function that returns the File object

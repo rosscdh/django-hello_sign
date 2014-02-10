@@ -40,7 +40,7 @@ class HelloSignWebhookEventHandlerTest(TestCase):
         self.monkey = TestMonkeyModel.objects.create(slug='test-monkey')
         self.monkey_content_object = self.monkey.get_content_type_object()
 
-        self.signature_request_id = HELLOSIGN_WEBHOOK_EVENT_DATA['signature_request'].get('signature_request_id')
+        self.signature_request_id = HELLOSIGN_WEBHOOK_EVENT_DATA['SIGNATURE_REQUEST_SENT']['signature_request'].get('signature_request_id')
 
         self.request = HelloSignRequest.objects.create(content_object_type=self.monkey_content_object,
                                                        object_id=self.monkey.pk,
@@ -53,7 +53,7 @@ class HelloSignWebhookEventHandlerTest(TestCase):
         i.e. HelloSign sends a post object with key "json" that is set to an actual
         string of JSON
         """
-        return { 'json': json.dumps(HELLOSIGN_WEBHOOK_EVENT_DATA) }
+        return { 'json': json.dumps(HELLOSIGN_WEBHOOK_EVENT_DATA['SIGNATURE_REQUEST_SENT']) }
 
     def get_hellosign_post_response(self):
         return self.client.post(reverse('sign:hellosign_webhook_event'), self.get_webhook_event_post_data())
@@ -81,5 +81,5 @@ class HelloSignWebhookEventHandlerTest(TestCase):
 
         self.assertEqual(hs_logs.count(), 1)
         self.assertEqual(log.event_type, 'signature_request_sent')
-        self.assertEqual(log.data, HELLOSIGN_WEBHOOK_EVENT_DATA)
+        self.assertEqual(log.data, HELLOSIGN_WEBHOOK_EVENT_DATA['SIGNATURE_REQUEST_SENT'])
 

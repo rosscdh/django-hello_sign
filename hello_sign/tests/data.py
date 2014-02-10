@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
+from collections import OrderedDict
+
 
 HELLOSIGN_200_RESPONSE = json.dumps({   u'signature_request': {   u'cc_email_addresses': [],
                               u'custom_fields': [],
@@ -16,16 +18,16 @@ HELLOSIGN_200_RESPONSE = json.dumps({   u'signature_request': {   u'cc_email_add
                                                      u'order': None,
                                                      u'signature_id': u'4555c5f356f8bdebb3bc7204d78af8ae',
                                                      u'signed_at': None,
-                                                     u'signer_email_address': u'ross+customer@lawpal.com',
-                                                     u'signer_name': u'Ross Customer',
+                                                     u'signer_email_address': u'test+customer@lawpal.com',
+                                                     u'signer_name': u'Test Customer',
                                                      u'status_code': u'awaiting_signature'},
                                                  {   u'last_reminded_at': None,
                                                      u'last_viewed_at': None,
                                                      u'order': None,
                                                      u'signature_id': u'a9c0ca82240d920c4303e5b56e2ad191',
                                                      u'signed_at': None,
-                                                     u'signer_email_address': u'ross+lawyer@lawpal.com',
-                                                     u'signer_name': u'Ross Tech Lawyer',
+                                                     u'signer_email_address': u'test+lawyer@lawpal.com',
+                                                     u'signer_name': u'Test Tech Lawyer',
                                                      u'status_code': u'awaiting_signature'}],
                               u'signing_redirect_url': None,
                               u'signing_url': u'https://www.hellosign.com/editor/sign?guid=79d41104dcf47068457c813615516f92c4ee6d63',
@@ -35,12 +37,12 @@ HELLOSIGN_200_RESPONSE = json.dumps({   u'signature_request': {   u'cc_email_add
 
 #
 # Dict Object representing the various types of HS webhook events
-# SIGNATURE_REQUEST_SENT - Sent to the registerd url when the intial request is setup
-# SIGNATURE_REQUEST_SIGNED_CLIENT - Sent when the client has signed their doc
-# SIGNATURE_REQUEST_SIGNED_LAWYER - Sent when the lawyer has signed their doc
-# SIGNATURE_REQUEST_ALL_SIGNED - Sent when all parties have signed
+# 0. SIGNATURE_REQUEST_SENT - Sent to the registerd url when the intial request is setup
+# 1. SIGNATURE_REQUEST_SIGNED_CLIENT - Sent when the client has signed their doc
+# 2. SIGNATURE_REQUEST_SIGNED_LAWYER - Sent when the lawyer has signed their doc
+# 3. SIGNATURE_REQUEST_ALL_SIGNED - Sent when all parties have signed
 #
-HELLOSIGN_WEBHOOK_EVENT_DATA = {"SIGNATURE_REQUEST_SENT": {
+HELLOSIGN_WEBHOOK_EVENT_DATA = OrderedDict({"SIGNATURE_REQUEST_SENT": {
                                   "signature_request": {
                                     "test_mode": True,
                                     "cc_email_addresses": [],
@@ -57,8 +59,8 @@ HELLOSIGN_WEBHOOK_EVENT_DATA = {"SIGNATURE_REQUEST_SENT": {
                                         "signed_at": None,
                                         "status_code": "awaiting_signature",
                                         "last_viewed_at": None,
-                                        "signer_email_address": "ross+lawyer@lawpal.com",
-                                        "signer_name": "Ross Lawyer",
+                                        "signer_email_address": "test+lawyer@lawpal.com",
+                                        "signer_name": "Test Lawyer",
                                         "last_reminded_at": None,
                                         "signature_id": "5bf0117458c8e8fc76bd52e75f4b914b",
                                         "order": None
@@ -67,8 +69,8 @@ HELLOSIGN_WEBHOOK_EVENT_DATA = {"SIGNATURE_REQUEST_SENT": {
                                         "signed_at": None,
                                         "status_code": "awaiting_signature",
                                         "last_viewed_at": None,
-                                        "signer_email_address": "ross+customer@lawpal.com",
-                                        "signer_name": "Ross Crawford",
+                                        "signer_email_address": "test+customer@lawpal.com",
+                                        "signer_name": "Test Crawford",
                                         "last_reminded_at": None,
                                         "signature_id": "f8025d2899dfe85dba4db5b2083f1f54",
                                         "order": None
@@ -91,6 +93,8 @@ HELLOSIGN_WEBHOOK_EVENT_DATA = {"SIGNATURE_REQUEST_SENT": {
                                   },
                                   "client_id": "9bc892af173754698e3fa30dedee3826"
                                 },
+
+
                                 "SIGNATURE_REQUEST_SIGNED_CLIENT": {
                                   "signature_request": {
                                     "custom_fields": [],
@@ -109,8 +113,8 @@ HELLOSIGN_WEBHOOK_EVENT_DATA = {"SIGNATURE_REQUEST_SENT": {
                                         "signed_at": None,
                                         "status_code": "awaiting_signature",
                                         "last_viewed_at": None,
-                                        "signer_email_address": "ross+lawyer@lawpal.com",
-                                        "signer_name": "Ross Lawyer",
+                                        "signer_email_address": "test+lawyer@lawpal.com",
+                                        "signer_name": "Test Lawyer",
                                         "last_reminded_at": None,
                                         "signature_id": "5bf0117458c8e8fc76bd52e75f4b914b",
                                         "order": None
@@ -119,8 +123,8 @@ HELLOSIGN_WEBHOOK_EVENT_DATA = {"SIGNATURE_REQUEST_SENT": {
                                         "signed_at": 1392037300,
                                         "status_code": "signed",
                                         "last_viewed_at": None,
-                                        "signer_email_address": "ross+customer@lawpal.com",
-                                        "signer_name": "Ross Crawford",
+                                        "signer_email_address": "test+customer@lawpal.com",
+                                        "signer_name": "Test Crawford",
                                         "last_reminded_at": None,
                                         "signature_id": "f8025d2899dfe85dba4db5b2083f1f54",
                                         "order": None
@@ -152,6 +156,8 @@ HELLOSIGN_WEBHOOK_EVENT_DATA = {"SIGNATURE_REQUEST_SENT": {
                                   },
                                   "client_id": "9bc892af173754698e3fa30dedee3826"
                                 },
+
+
                                 "SIGNATURE_REQUEST_SIGNED_LAWYER": {
                                   "signature_request": {
                                     "custom_fields": [],
@@ -170,8 +176,8 @@ HELLOSIGN_WEBHOOK_EVENT_DATA = {"SIGNATURE_REQUEST_SENT": {
                                         "signed_at": 1392037626,
                                         "status_code": "signed",
                                         "last_viewed_at": None,
-                                        "signer_email_address": "ross+lawyer@lawpal.com",
-                                        "signer_name": "Ross Lawyer",
+                                        "signer_email_address": "test+lawyer@lawpal.com",
+                                        "signer_name": "Test Lawyer",
                                         "last_reminded_at": None,
                                         "signature_id": "5bf0117458c8e8fc76bd52e75f4b914b",
                                         "order": None
@@ -180,8 +186,8 @@ HELLOSIGN_WEBHOOK_EVENT_DATA = {"SIGNATURE_REQUEST_SENT": {
                                         "signed_at": 1392037300,
                                         "status_code": "signed",
                                         "last_viewed_at": None,
-                                        "signer_email_address": "ross+customer@lawpal.com",
-                                        "signer_name": "Ross Crawford",
+                                        "signer_email_address": "test+customer@lawpal.com",
+                                        "signer_name": "Test Crawford",
                                         "last_reminded_at": None,
                                         "signature_id": "f8025d2899dfe85dba4db5b2083f1f54",
                                         "order": None
@@ -234,6 +240,8 @@ HELLOSIGN_WEBHOOK_EVENT_DATA = {"SIGNATURE_REQUEST_SENT": {
                                   },
                                   "client_id": "9bc892af173754698e3fa30dedee3826"
                                 },
+
+
                                 "SIGNATURE_REQUEST_ALL_SIGNED": {
                                   "signature_request": {
                                     "custom_fields": [],
@@ -252,8 +260,8 @@ HELLOSIGN_WEBHOOK_EVENT_DATA = {"SIGNATURE_REQUEST_SENT": {
                                         "signed_at": 1392037626,
                                         "status_code": "signed",
                                         "last_viewed_at": None,
-                                        "signer_email_address": "ross+lawyer@lawpal.com",
-                                        "signer_name": "Ross Lawyer",
+                                        "signer_email_address": "test+lawyer@lawpal.com",
+                                        "signer_name": "Test Lawyer",
                                         "last_reminded_at": None,
                                         "signature_id": "5bf0117458c8e8fc76bd52e75f4b914b",
                                         "order": None
@@ -262,8 +270,8 @@ HELLOSIGN_WEBHOOK_EVENT_DATA = {"SIGNATURE_REQUEST_SENT": {
                                         "signed_at": 1392037300,
                                         "status_code": "signed",
                                         "last_viewed_at": None,
-                                        "signer_email_address": "ross+customer@lawpal.com",
-                                        "signer_name": "Ross Crawford",
+                                        "signer_email_address": "test+customer@lawpal.com",
+                                        "signer_name": "Test Crawford",
                                         "last_reminded_at": None,
                                         "signature_id": "f8025d2899dfe85dba4db5b2083f1f54",
                                         "order": None
@@ -329,5 +337,5 @@ HELLOSIGN_WEBHOOK_EVENT_DATA = {"SIGNATURE_REQUEST_SENT": {
                                   },
                                   "client_id": "9bc892af173754698e3fa30dedee3826"
                                 }
-                              }
+                              })
 

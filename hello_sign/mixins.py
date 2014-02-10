@@ -2,7 +2,7 @@
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 
-from .services import HelloSignService
+from .services import HelloSignService, HelloSignSignerService
 from .models import HelloSignRequest
 
 from . import logger
@@ -49,9 +49,11 @@ class HelloSignModelMixin(ModelContentTypeMixin):
     def signature_request_id(self):
         return getattr(self.hellosign, 'signature_request_id', None)
 
-    @property
-    def signing_url(self):
-        return self.signing_data.get('signing_url', None)
+    def signing_url(self, signer_email):
+        """
+        """
+        service = HelloSignSignerService(signatures=self.signatures[::], signer_email=signer_email)
+        return service.sign_url_for_signer(email=signer_email)
 
     @property
     def signatures(self):
@@ -119,6 +121,7 @@ class HelloSignModelMixin(ModelContentTypeMixin):
         service = self.get_hs_service()
         resp = service.send_for_signing(test_mode=HELLOSIGN_TEST_MODE,
                                         client_id=settings.HELLOSIGN_CLIENT_ID)
+        # resp = service.send_for_signing(test_mode=HELLOSIGN_TEST_MODE)
 
         if 'signature_request' not in resp.json() or resp.status_code not in [200]:
             raise Exception('Could not send document for signing at HelloSign: %s' % resp.json())

@@ -1,15 +1,18 @@
 # -*- coding: utf-8 -*-
 from django.conf import settings
-
-from hellosign import HelloSignEmbeddedDocumentSignature
 from hellosign import HelloSigner, HelloDoc
+from hellosign import (HelloSignSignature,
+                       HelloSignEmbeddedDocumentSignature,
+                       HelloSignEmbeddedDocumentSigningUrl)
 
+import time
+from datetime import timedelta, datetime
 from . import logger
 
 
 class HelloSignService(object):
     """
-        Service that allows us to send a document for signing
+    Service that allows us to send a document for signing
     """
     def __init__(self, document, invitees, **kwargs):
         self.document = document
@@ -39,10 +42,79 @@ class HelloSignService(object):
         signature.add_doc(HelloDoc(file_path=self.document.name))
 
         # Perform the submission
-        try:
-            result = signature.create(auth=self.hellosign_authentication, **kwargs)
-        except Exception as e:
-            result = None
-            logger.error('Could not submit %s to HelloSign: "%s"'%(self.document, e,))
+        result = signature.create(auth=self.hellosign_authentication, **kwargs)
 
         return result
+
+
+class HelloSignSignerService(object):
+    """
+    Service that returns various data for and about the signer
+    """
+    signer_email = None  # the current users email
+    signatures = []  # the current set of signatures for a request
+
+    def __init__(self, signatures, signer_email=None):
+        self.signer_email = signer_email
+        self.signatures = signatures
+
+        try:
+            self.hellosign_authentication = settings.HELLOSIGN_AUTHENTICATION
+        except AttributeError:
+            logger.critical("No settings.HELLOSIGN_AUTH has been specified. Please provide them")
+
+        self.process()
+
+    def embedded_signature_url(self, signature_id):
+        service = HelloSignEmbeddedDocumentSigningUrl(signature_id=signature_id)
+        return service.create(auth=self.hellosign_authentication)
+
+    def process(self):
+        """
+        Get the embedded signature url and expiry from HS
+        """
+        for i, signer in enumerate(self.signatures):
+            #
+            # If we have NO email address specified then update all the signer dicts
+            # if we have an email and the current signers email matches it then update
+            # just that one
+            #
+            if self.signer_email is None or self.signer_email == signer.get('signer_email_address'):
+
+                status_code = signer.get('status_code', None)
+                expires_at = signer.get('expires_at', None)
+                #
+                # If we are waiting on a signature or have no code
+                #
+                if status_code in ['awaiting_signature', None]:
+                    #
+                    # If we have no expries_at date (implies url has already been got)
+                    # or if the expires at has expired
+                    #
+                    if expires_at is None or datetime.fromtimestamp(int(expires_at)) >= datetime.utcnow():
+
+                        resp = self.embedded_signature_url(signature_id=signer.get('signature_id'))
+
+                        try:
+                            resp_json = resp.json()['embedded']
+
+                            signer['sign_url'] = resp_json.get('sign_url')
+                            signer['expires_at'] = resp_json.get('expires_at')
+
+                            self.signatures[i] = signer
+
+                        except Exception as e:
+                            logger.critical('Could not retrieve signer signature url: %s' % e)
+
+
+    def sign_url_for_signer(self, email):
+        for i, signer in enumerate(self.signatures):
+
+            status_code = signer.get('status_code', None)
+
+            if status_code in ['awaiting_signature', None]:
+
+                if signer.get('signer_email_address') == email:
+                    return signer.get('sign_url')
+        return None
+

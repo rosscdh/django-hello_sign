@@ -22,7 +22,7 @@ class HelloSignWebhookEventHandler(CreateView):
     """
     model = HelloSignLog
     # response needs to return "Hello API Event Received"
-    template_name = 'sign/hellosign/webhook_create_event.html'
+    template_name = 'sign/hello_sign/webhook_create_event.html'
 
     def extract_json_data(self, body):
         logger.debug('Post from HelloSign: %s' % body)

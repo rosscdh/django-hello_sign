@@ -1,0 +1,28 @@
+{% if signer_url %}
+<script src="//s3.amazonaws.com/cdn.hellofax.com/js/embedded.js"></script>
+<script type="text/javascript">
+$(document).ready(function () {
+    'use strict';
+    HelloSign.init('{{ HELLOSIGN_CLIENT_ID }}');
+    HelloSign.open({
+        url: "{{ signer_url|safe }}",               // Signature url your fetched via the API on your server
+        allowCancel: true,                     // (optional) Whether to allow the user to cancel i.e. close the iFrame without signing (default is true)
+        debug: {{ DEBUG }},
+        messageListener: function(eventData) { // (optional) Called whenever the iFrame is messaging your page
+            /*  do something */ 
+        }    
+    });
+});
+</script>
+{% else %}
+<script type="text/javascript">
+$(document).ready(function () {
+    'use strict';
+    /**
+    * WARNING : No signer_url was provided
+    */
+    {% if DEBUG %}console.log('No signer_url was provided'){% endif %}
+
+});
+</script>
+{% endif %}

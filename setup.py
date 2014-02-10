@@ -24,7 +24,7 @@ setup(
         'hellosign',
     ],
     dependency_links=[
-        'git+ssh://git@github.com/rosscdh/HelloSignApi.git@0.1.0#egg=HelloSignApi-v0.1.0-beta'
+        'git+ssh://git@github.com/rosscdh/HelloSignApi.git@0.1.1#egg=HelloSignApi-v0.1.1'
     ],
     classifiers=[
         'Development Status :: 1 - Alpha',
@@ -34,7 +34,6 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',

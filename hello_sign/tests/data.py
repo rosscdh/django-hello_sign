@@ -33,38 +33,301 @@ HELLOSIGN_200_RESPONSE = json.dumps({   u'signature_request': {   u'cc_email_add
                               u'test_mode': True,
                               u'title': u'/var/folders/nb/w1bxhlbd7jscn56p6gksdbcm0000gn/T/tmp7Xf1UC.docx'}})
 
-
-HELLOSIGN_WEBHOOK_EVENT_DATA = {
-    "event": {
-        "event_time": "1348177752", 
-        "event_type": "signature_request_sent"
-    }, 
-    "signature_request": {
-        "cc_email_addresses": [], 
-        "custom_fields": [], 
-        "details_url": "https://www.hellosign.com/home/manage?locate=1f8c510a38edbdf97eed524fba1c9a900feb56a4", 
-        "has_error": False, 
-        "is_complete": False, 
-        "message": "Please sign this NDA and then we can discuss more. Let me know if you have any questions.", 
-        "requester_email_address": "me@hellosign.com", 
-        "response_data": [], 
-        "signature_request_id": "1f8c510a38edbdf97eed524fba1c9a900feb56a4", 
-        "signatures": [
-            {
-                "signature_id": "78caf2a1d01cd39cea2bc1cbb340dac3",
-                "last_reminded_at": None, 
-                "last_viewed_at": None, 
-                "order": None, 
-                "signed_at": None, 
-                "signer_email_address": "jack@example.com", 
-                "signer_name": "Jack", 
-                "status_code": "awaiting_signature"
-            }
-        ], 
-        "signing_url": "https://www.hellosign.com/editor/sign?guid=1f8c510a38edbdf97eed524fba1c9a900feb56a4", 
-        "signing_redirect_url": None,
-        "subject": "NDA with Acme Co.", 
-        "title": "NDA with Acme Co."
-    }
-}
+#
+# Dict Object representing the various types of HS webhook events
+# SIGNATURE_REQUEST_SENT - Sent to the registerd url when the intial request is setup
+# SIGNATURE_REQUEST_SIGNED_CLIENT - Sent when the client has signed their doc
+# SIGNATURE_REQUEST_SIGNED_LAWYER - Sent when the lawyer has signed their doc
+# SIGNATURE_REQUEST_ALL_SIGNED - Sent when all parties have signed
+#
+HELLOSIGN_WEBHOOK_EVENT_DATA = {"SIGNATURE_REQUEST_SENT": {
+                                  "signature_request": {
+                                    "test_mode": True,
+                                    "cc_email_addresses": [],
+                                    "custom_fields": [],
+                                    "title": "#123455 Engagement Letter",
+                                    "signature_request_id": "4092ab59cddab526ff79907f23f72022924617cc",
+                                    "original_title": "Signature Request for #123455 Engagement Letter",
+                                    "requester_email_address": "founders@lawpal.com",
+                                    "details_url": "https://www.hellosign.com/home/manage?locate=4092ab59cddab526ff79907f23f72022924617cc",
+                                    "signing_url": "https://www.hellosign.com/editor/sign?guid=4092ab59cddab526ff79907f23f72022924617cc",
+                                    "has_error": False,
+                                    "signatures": [
+                                      {
+                                        "signed_at": None,
+                                        "status_code": "awaiting_signature",
+                                        "last_viewed_at": None,
+                                        "signer_email_address": "ross+lawyer@lawpal.com",
+                                        "signer_name": "Ross Lawyer",
+                                        "last_reminded_at": None,
+                                        "signature_id": "5bf0117458c8e8fc76bd52e75f4b914b",
+                                        "order": None
+                                      },
+                                      {
+                                        "signed_at": None,
+                                        "status_code": "awaiting_signature",
+                                        "last_viewed_at": None,
+                                        "signer_email_address": "ross+customer@lawpal.com",
+                                        "signer_name": "Ross Crawford",
+                                        "last_reminded_at": None,
+                                        "signature_id": "f8025d2899dfe85dba4db5b2083f1f54",
+                                        "order": None
+                                      }
+                                    ],
+                                    "response_data": [],
+                                    "message": "Please review and sign this document at your earliest convenience",
+                                    "is_complete": False,
+                                    "signing_redirect_url": None,
+                                    "subject": "Signature Request for #123455 Engagement Letter"
+                                  },
+                                  "account_guid": "295554d35f8ab1f3d7b9a276f439542868ac2b05",
+                                  "event": {
+                                    "event_hash": "df5b62ceaae857de1c51214dc89ea61e0ebf3994138b877b3ead2f888ca4feb3",
+                                    "event_time": "1392037259",
+                                    "event_type": "signature_request_sent",
+                                    "event_metadata": {
+                                      "reported_for_account_id": "295554d35f8ab1f3d7b9a276f439542868ac2b05"
+                                    }
+                                  },
+                                  "client_id": "9bc892af173754698e3fa30dedee3826"
+                                },
+                                "SIGNATURE_REQUEST_SIGNED_CLIENT": {
+                                  "signature_request": {
+                                    "custom_fields": [],
+                                    "test_mode": True,
+                                    "cc_email_addresses": [],
+                                    "is_complete": False,
+                                    "title": "#123455 Engagement Letter",
+                                    "signature_request_id": "4092ab59cddab526ff79907f23f72022924617cc",
+                                    "original_title": "Signature Request for #123455 Engagement Letter",
+                                    "requester_email_address": "founders@lawpal.com",
+                                    "details_url": "https://www.hellosign.com/home/manage?locate=4092ab59cddab526ff79907f23f72022924617cc",
+                                    "signing_url": "https://www.hellosign.com/editor/sign?guid=4092ab59cddab526ff79907f23f72022924617cc",
+                                    "has_error": False,
+                                    "signatures": [
+                                      {
+                                        "signed_at": None,
+                                        "status_code": "awaiting_signature",
+                                        "last_viewed_at": None,
+                                        "signer_email_address": "ross+lawyer@lawpal.com",
+                                        "signer_name": "Ross Lawyer",
+                                        "last_reminded_at": None,
+                                        "signature_id": "5bf0117458c8e8fc76bd52e75f4b914b",
+                                        "order": None
+                                      },
+                                      {
+                                        "signed_at": 1392037300,
+                                        "status_code": "signed",
+                                        "last_viewed_at": None,
+                                        "signer_email_address": "ross+customer@lawpal.com",
+                                        "signer_name": "Ross Crawford",
+                                        "last_reminded_at": None,
+                                        "signature_id": "f8025d2899dfe85dba4db5b2083f1f54",
+                                        "order": None
+                                      }
+                                    ],
+                                    "response_data": [
+                                      {
+                                        "value": None,
+                                        "signature_id": "f8025d2899dfe85dba4db5b2083f1f54",
+                                        "type": "signature",
+                                        "name": None,
+                                        "api_id": "d573df_2"
+                                      }
+                                    ],
+                                    "message": "Please review and sign this document at your earliest convenience",
+                                    "final_copy_uri": "/v3/signature_request/final_copy/4092ab59cddab526ff79907f23f72022924617cc",
+                                    "signing_redirect_url": None,
+                                    "subject": "Signature Request for #123455 Engagement Letter"
+                                  },
+                                  "account_guid": "295554d35f8ab1f3d7b9a276f439542868ac2b05",
+                                  "event": {
+                                    "event_hash": "2a8cb3bda7a7bf25d7865bb88af74f6002e07e5589c8fdb979a165232622c6bc",
+                                    "event_time": "1392037300",
+                                    "event_type": "signature_request_signed",
+                                    "event_metadata": {
+                                      "reported_for_account_id": "295554d35f8ab1f3d7b9a276f439542868ac2b05",
+                                      "related_signature_id": "dab784c5c8cc8b67d46aeca6bf6e0e240c081f00"
+                                    }
+                                  },
+                                  "client_id": "9bc892af173754698e3fa30dedee3826"
+                                },
+                                "SIGNATURE_REQUEST_SIGNED_LAWYER": {
+                                  "signature_request": {
+                                    "custom_fields": [],
+                                    "test_mode": True,
+                                    "cc_email_addresses": [],
+                                    "is_complete": False,
+                                    "title": "#123455 Engagement Letter",
+                                    "signature_request_id": "4092ab59cddab526ff79907f23f72022924617cc",
+                                    "original_title": "Signature Request for #123455 Engagement Letter",
+                                    "requester_email_address": "founders@lawpal.com",
+                                    "details_url": "https://www.hellosign.com/home/manage?locate=4092ab59cddab526ff79907f23f72022924617cc",
+                                    "signing_url": "https://www.hellosign.com/editor/sign?guid=4092ab59cddab526ff79907f23f72022924617cc",
+                                    "has_error": False,
+                                    "signatures": [
+                                      {
+                                        "signed_at": 1392037626,
+                                        "status_code": "signed",
+                                        "last_viewed_at": None,
+                                        "signer_email_address": "ross+lawyer@lawpal.com",
+                                        "signer_name": "Ross Lawyer",
+                                        "last_reminded_at": None,
+                                        "signature_id": "5bf0117458c8e8fc76bd52e75f4b914b",
+                                        "order": None
+                                      },
+                                      {
+                                        "signed_at": 1392037300,
+                                        "status_code": "signed",
+                                        "last_viewed_at": None,
+                                        "signer_email_address": "ross+customer@lawpal.com",
+                                        "signer_name": "Ross Crawford",
+                                        "last_reminded_at": None,
+                                        "signature_id": "f8025d2899dfe85dba4db5b2083f1f54",
+                                        "order": None
+                                      }
+                                    ],
+                                    "response_data": [
+                                      {
+                                        "value": None,
+                                        "signature_id": "f8025d2899dfe85dba4db5b2083f1f54",
+                                        "type": "signature",
+                                        "name": None,
+                                        "api_id": "d573df_2"
+                                      },
+                                      {
+                                        "value": "IP: 91.61.209.147",
+                                        "signature_id": "f8025d2899dfe85dba4db5b2083f1f54",
+                                        "type": None,
+                                        "name": None,
+                                        "api_id": "c6936e_1"
+                                      },
+                                      {
+                                        "value": "Time: February 10th, 2014 1:01 PM UTC",
+                                        "signature_id": "f8025d2899dfe85dba4db5b2083f1f54",
+                                        "type": None,
+                                        "name": None,
+                                        "api_id": "c6936e_2"
+                                      },
+                                      {
+                                        "value": None,
+                                        "signature_id": "5bf0117458c8e8fc76bd52e75f4b914b",
+                                        "type": "signature",
+                                        "name": None,
+                                        "api_id": "d573df_1"
+                                      }
+                                    ],
+                                    "message": "Please review and sign this document at your earliest convenience",
+                                    "final_copy_uri": "/v3/signature_request/final_copy/4092ab59cddab526ff79907f23f72022924617cc",
+                                    "signing_redirect_url": None,
+                                    "subject": "Signature Request for #123455 Engagement Letter"
+                                  },
+                                  "account_guid": "295554d35f8ab1f3d7b9a276f439542868ac2b05",
+                                  "event": {
+                                    "event_hash": "5781e24900fedc43259d528cb7bff68ea1b41f95fef356a0400a7c5a1fb9fc20",
+                                    "event_time": "1392037626",
+                                    "event_type": "signature_request_signed",
+                                    "event_metadata": {
+                                      "reported_for_account_id": "295554d35f8ab1f3d7b9a276f439542868ac2b05",
+                                      "related_signature_id": "d7f7c3562903d04830630023faf628285892a6ae"
+                                    }
+                                  },
+                                  "client_id": "9bc892af173754698e3fa30dedee3826"
+                                },
+                                "SIGNATURE_REQUEST_ALL_SIGNED": {
+                                  "signature_request": {
+                                    "custom_fields": [],
+                                    "test_mode": True,
+                                    "cc_email_addresses": [],
+                                    "is_complete": True,
+                                    "title": "#123455 Engagement Letter",
+                                    "signature_request_id": "4092ab59cddab526ff79907f23f72022924617cc",
+                                    "original_title": "Signature Request for #123455 Engagement Letter",
+                                    "requester_email_address": "founders@lawpal.com",
+                                    "details_url": "https://www.hellosign.com/home/manage?locate=4092ab59cddab526ff79907f23f72022924617cc",
+                                    "signing_url": "https://www.hellosign.com/editor/sign?guid=4092ab59cddab526ff79907f23f72022924617cc",
+                                    "has_error": False,
+                                    "signatures": [
+                                      {
+                                        "signed_at": 1392037626,
+                                        "status_code": "signed",
+                                        "last_viewed_at": None,
+                                        "signer_email_address": "ross+lawyer@lawpal.com",
+                                        "signer_name": "Ross Lawyer",
+                                        "last_reminded_at": None,
+                                        "signature_id": "5bf0117458c8e8fc76bd52e75f4b914b",
+                                        "order": None
+                                      },
+                                      {
+                                        "signed_at": 1392037300,
+                                        "status_code": "signed",
+                                        "last_viewed_at": None,
+                                        "signer_email_address": "ross+customer@lawpal.com",
+                                        "signer_name": "Ross Crawford",
+                                        "last_reminded_at": None,
+                                        "signature_id": "f8025d2899dfe85dba4db5b2083f1f54",
+                                        "order": None
+                                      }
+                                    ],
+                                    "response_data": [
+                                      {
+                                        "value": None,
+                                        "signature_id": "f8025d2899dfe85dba4db5b2083f1f54",
+                                        "type": "signature",
+                                        "name": None,
+                                        "api_id": "d573df_2"
+                                      },
+                                      {
+                                        "value": "IP: 91.61.209.147",
+                                        "signature_id": "f8025d2899dfe85dba4db5b2083f1f54",
+                                        "type": None,
+                                        "name": None,
+                                        "api_id": "c6936e_1"
+                                      },
+                                      {
+                                        "value": "Time: February 10th, 2014 1:01 PM UTC",
+                                        "signature_id": "f8025d2899dfe85dba4db5b2083f1f54",
+                                        "type": None,
+                                        "name": None,
+                                        "api_id": "c6936e_2"
+                                      },
+                                      {
+                                        "value": None,
+                                        "signature_id": "5bf0117458c8e8fc76bd52e75f4b914b",
+                                        "type": "signature",
+                                        "name": None,
+                                        "api_id": "d573df_1"
+                                      },
+                                      {
+                                        "value": "IP: 91.61.209.147",
+                                        "signature_id": "5bf0117458c8e8fc76bd52e75f4b914b",
+                                        "type": None,
+                                        "name": None,
+                                        "api_id": "578aad_1"
+                                      },
+                                      {
+                                        "value": "Time: February 10th, 2014 1:07 PM UTC",
+                                        "signature_id": "5bf0117458c8e8fc76bd52e75f4b914b",
+                                        "type": None,
+                                        "name": None,
+                                        "api_id": "578aad_2"
+                                      }
+                                    ],
+                                    "message": "Please review and sign this document at your earliest convenience",
+                                    "final_copy_uri": "/v3/signature_request/final_copy/4092ab59cddab526ff79907f23f72022924617cc",
+                                    "signing_redirect_url": None,
+                                    "subject": "Signature Request for #123455 Engagement Letter"
+                                  },
+                                  "account_guid": "295554d35f8ab1f3d7b9a276f439542868ac2b05",
+                                  "event": {
+                                    "event_hash": "0fa5ca7618dfe80d2fb6207b21b82ca2023331c1b776b40872cc832b902c3bdb",
+                                    "event_time": "1392037626",
+                                    "event_type": "signature_request_all_signed",
+                                    "event_metadata": {
+                                      "reported_for_account_id": "295554d35f8ab1f3d7b9a276f439542868ac2b05"
+                                    }
+                                  },
+                                  "client_id": "9bc892af173754698e3fa30dedee3826"
+                                }
+                              }
 

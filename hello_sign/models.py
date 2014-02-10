@@ -57,7 +57,7 @@ class HelloSignLog(models.Model):
         response_data = self.response_data
         #
         # reversed is used because HS send the complete response_data
-        # and simply keeps appending to it thus the most recent elements are 
+        # and simply keeps appending to it thus the most recent elements are
         # the last elements on the list
         #
         for item in reversed(response_data):
@@ -69,6 +69,9 @@ class HelloSignLog(models.Model):
                 first = item
                 break
 
+        #
+        # we found a matching signature
+        #
         if first is not None:
             signature_id = first.get('signature_id')
 
@@ -81,9 +84,6 @@ class HelloSignLog(models.Model):
                     return (user, status_code)
 
         return (None, None)
-
-
-
 
 
 from .signals import hellosign_webhook_event_recieved

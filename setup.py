@@ -24,7 +24,7 @@ setup(
         'hellosign',
     ],
     dependency_links=[
-        'git+ssh://git@github.com/rosscdh/HelloSignApi.git@0.1.1#egg=HelloSignApi-v0.1.1'
+        'git+ssh://git@github.com/rosscdh/HelloSignApi.git@v0.1.1#egg=HelloSignApi-v0.1.1'
     ],
     classifiers=[
         'Development Status :: 1 - Alpha',

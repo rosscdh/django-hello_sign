@@ -4,7 +4,7 @@ from django.views.generic import CreateView
 from django.http import HttpResponseBadRequest
 from django.shortcuts import render, get_object_or_404
 
-import hashlib, hmac 
+import hashlib, hmac
 
 from . import logger
 
@@ -71,7 +71,6 @@ class HelloSignWebhookEventHandler(CreateView):
         except Exception as e:
             return HttpResponseBadRequest('HelloSign webhook exception: %s' % e)
 
-
         logger.info('recieved webhook event: %s from HelloSign signature_request_id: %s' % (event_type, signature_request_id))
 
         # get the request object which must exist as its created when the object is sent for signing
@@ -89,6 +88,5 @@ class HelloSignWebhookEventHandler(CreateView):
                                               data=data,
                                               hellosign_request=hellosign_request,
                                               hellosign_log=self.object)
-
 
         return render(request, self.template_name)

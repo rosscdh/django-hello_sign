@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
+from django.conf import settings
 from django.views.generic import CreateView
+from django.http import HttpResponseBadRequest
 from django.shortcuts import render, get_object_or_404
+
+import hashlib, hmac 
 
 from . import logger
 
@@ -8,6 +12,9 @@ from .models import HelloSignRequest, HelloSignLog
 from .models import hellosign_webhook_event_recieved
 
 import json
+
+HELLOSIGN_API_KEY = getattr(settings, 'HELLOSIGN_API_KEY', None)
+assert HELLOSIGN_API_KEY is not None, 'You must define a settings.HELLOSIGN_API_KEY see: http://www.hellosign.com/home/myAccount/current_tab/integrations'
 
 
 class HelloSignWebhookEventHandler(CreateView):
@@ -23,6 +30,15 @@ class HelloSignWebhookEventHandler(CreateView):
     model = HelloSignLog
     # response needs to return "Hello API Event Received"
     template_name = 'sign/hello_sign/webhook_create_event.html'
+
+    def validate_callback(self, event_data):
+        # expected result
+        event_hash = event_data['event'].get('event_hash')
+        # comparison
+        event_type = event_data['event'].get('event_type')
+        event_time = event_data['event'].get('event_time')
+
+        assert event_hash == hmac.new(HELLOSIGN_API_KEY, (event_time + event_type), hashlib.sha256).hexdigest(), 'event_hash does not match see: http://www.hellosign.com/api/reference#EventHashVerification'
 
     def extract_json_data(self, body):
         logger.debug('Post from HelloSign: %s' % body)
@@ -47,8 +63,17 @@ class HelloSignWebhookEventHandler(CreateView):
         string of JSON
         """
         data = self.extract_json_data(body=request.POST.get('json'))  # extract json
-        event_type = data['event'].get('event_type')
+
         signature_request_id = data['signature_request'].get('signature_request_id')
+
+        event_type = data['event'].get('event_type')
+
+        # validate callback
+        try:
+            self.validate_callback(event_data=data)
+        except Exception as e:
+            return HttpResponseBadRequest('HelloSign webhook exception: %s' % e)
+
 
         logger.info('recieved webhook event: %s from HelloSign signature_request_id: %s' % (event_type, signature_request_id))
 

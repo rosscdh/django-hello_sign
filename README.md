@@ -111,8 +111,11 @@ Helpers
 
 Management Command to register the webhook callback endpoint at HelloSign
 
+The standard url for the callback view is __/sign/hellosign/event/__
+Assuming you have set the urls up as above.
+
 ```
-python manage.py hellosign_set_callback :url_to_your_site_for_testing_or_prod
+python manage.py hellosign_set_callback :your_site_url/sign/hellosign/event/
 ```
 
 

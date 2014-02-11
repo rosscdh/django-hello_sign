@@ -10,21 +10,22 @@ def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 setup(
-    name = "django-hellosign",
+    name = "django-hello_sign",
     version = "0.1.5",
     author = "Ross Crawford-d'Heureuse",
     author_email = "ross@lawpal.com",
     description = ("Django app for integrating with HelloSign"),
     license = "MIT",
     keywords = "django hellosign app",
-    url = "https://github.com/rosscdh/django-hellosign",
+    url = "https://github.com/rosscdh/django-hello_sign",
     packages=['hello_sign'],
     long_description=read('README.md'),
     install_requires = [
         'hellosign',
     ],
     dependency_links=[
-        'git+ssh://git@github.com/rosscdh/HelloSignApi.git@v0.1.1#egg=HelloSignApi-v0.1.1'
+        # HelloSign Api client
+        'git+ssh://git@github.com/rosscdh/hellosign.git@v0.1.1#egg=hellosign-v0.1.1'
     ],
     classifiers=[
         'Development Status :: 1 - Alpha',

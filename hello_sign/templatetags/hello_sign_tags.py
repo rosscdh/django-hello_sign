@@ -26,14 +26,14 @@ STATUS_CODE_CHOICES = {
 
 @register.filter(name='timestamp_to_date')
 def timestamp_to_date(timestamp=None):
-    if timestamp is not None:
+    if timestamp is not None and type(timestamp) in [int, float]:
         return datetime.fromtimestamp(timestamp)
     return None
 
 
 @register.filter(name='status_code_name')
 def status_code_name(status_code):
-    return STATUS_CODE_CHOICES.get(status_code, 'Code not Found: %s' % status_code)
+    return STATUS_CODE_CHOICES.get(status_code, 'Unknown Status Code: %s' % status_code)
 
 
 @register.inclusion_tag('sign/hello_sign/signer_url.html')

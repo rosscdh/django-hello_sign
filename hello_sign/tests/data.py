@@ -70,7 +70,7 @@ HELLOSIGN_WEBHOOK_EVENT_DATA = OrderedDict({"SIGNATURE_REQUEST_SENT": {
                                         "status_code": "awaiting_signature",
                                         "last_viewed_at": None,
                                         "signer_email_address": "test+customer@lawpal.com",
-                                        "signer_name": "Test Crawford",
+                                        "signer_name": "Test Customer",
                                         "last_reminded_at": None,
                                         "signature_id": "f8025d2899dfe85dba4db5b2083f1f54",
                                         "order": None
@@ -124,7 +124,7 @@ HELLOSIGN_WEBHOOK_EVENT_DATA = OrderedDict({"SIGNATURE_REQUEST_SENT": {
                                         "status_code": "signed",
                                         "last_viewed_at": None,
                                         "signer_email_address": "test+customer@lawpal.com",
-                                        "signer_name": "Test Crawford",
+                                        "signer_name": "Test Customer",
                                         "last_reminded_at": None,
                                         "signature_id": "f8025d2899dfe85dba4db5b2083f1f54",
                                         "order": None
@@ -187,7 +187,7 @@ HELLOSIGN_WEBHOOK_EVENT_DATA = OrderedDict({"SIGNATURE_REQUEST_SENT": {
                                         "status_code": "signed",
                                         "last_viewed_at": None,
                                         "signer_email_address": "test+customer@lawpal.com",
-                                        "signer_name": "Test Crawford",
+                                        "signer_name": "Test Customer",
                                         "last_reminded_at": None,
                                         "signature_id": "f8025d2899dfe85dba4db5b2083f1f54",
                                         "order": None
@@ -271,7 +271,7 @@ HELLOSIGN_WEBHOOK_EVENT_DATA = OrderedDict({"SIGNATURE_REQUEST_SENT": {
                                         "status_code": "signed",
                                         "last_viewed_at": None,
                                         "signer_email_address": "test+customer@lawpal.com",
-                                        "signer_name": "Test Crawford",
+                                        "signer_name": "Test Customer",
                                         "last_reminded_at": None,
                                         "signature_id": "f8025d2899dfe85dba4db5b2083f1f54",
                                         "order": None
@@ -339,3 +339,8 @@ HELLOSIGN_WEBHOOK_EVENT_DATA = OrderedDict({"SIGNATURE_REQUEST_SENT": {
                                 }
                               })
 
+
+SIGNATURE_URL_REQUEST = {'embedded': {
+                          'sign_url': 'https://www.hellosign.com/editor/embeddedSign?signature_id={signature_id}&token={token}',
+                          'expires_at': 1392110915
+                        }}

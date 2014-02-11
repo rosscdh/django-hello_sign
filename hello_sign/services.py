@@ -7,6 +7,7 @@ from hellosign import (HelloSignSignature,
 
 import time
 from datetime import timedelta, datetime
+
 from . import logger
 
 
@@ -60,8 +61,11 @@ class HelloSignSignerService(object):
 
         try:
             self.hellosign_authentication = settings.HELLOSIGN_AUTHENTICATION
+
         except AttributeError:
-            logger.critical("No settings.HELLOSIGN_AUTH has been specified. Please provide them")
+            msg = 'No settings.HELLOSIGN_AUTHENTICATION tuple (username:password) has been specified. Please provide them'
+            logger.critical(msg)
+            raise Exception(msg)
 
         self.process()
 
@@ -79,19 +83,24 @@ class HelloSignSignerService(object):
             # if we have an email and the current signers email matches it then update
             # just that one
             #
+            logger.debug('HelloSign get a signing_url for signer: %s' % signer)
             if self.signer_email is None or self.signer_email == signer.get('signer_email_address'):
 
                 status_code = signer.get('status_code', None)
                 expires_at = signer.get('expires_at', None)
+                logger.debug('Get signing_url for status_code: %s, expires_at: %s' % (status_code, signer))
+
                 #
                 # If we are waiting on a signature or have no code
                 #
                 if status_code in ['awaiting_signature', None]:
+                    logger.debug('signing_url status_code is valid and we can try get a signature')
                     #
                     # If we have no expries_at date (implies url has already been got)
                     # or if the expires at has expired
                     #
                     if expires_at is None or datetime.fromtimestamp(int(expires_at)) >= datetime.utcnow():
+                        logger.debug('can get signature url, as current is None or has expired')
 
                         resp = self.embedded_signature_url(signature_id=signer.get('signature_id'))
 
@@ -105,6 +114,9 @@ class HelloSignSignerService(object):
 
                         except Exception as e:
                             logger.critical('Could not retrieve signer signature url: %s' % e)
+
+                    else:
+                        logger.info('signing_url status_code is invalid has not expired: %s for : %s' % (expires_at, self.signatures[i]))
 
 
     def sign_url_for_signer(self, email):

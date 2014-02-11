@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from unittest import TestCase
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.test.utils import override_settings
 from django.test import TestCase as DjangoTestCase
@@ -77,7 +78,7 @@ class TimestampToDateTest(TestCase):
 
     def test_good_value(self):
         result = timestamp_to_date(1392037300)
-        self.assertEqual(result, datetime.datetime(2014, 2, 10, 14, 1, 40))
+        self.assertEqual(result, datetime.datetime(2014, 2, 10, 13, 1, 40))
 
     def test_invalid_value(self):
         for t in self.invalid:
@@ -108,13 +109,15 @@ class SignerUrlJavascriptTest(DjangoTestCase):
                                                                  signature_request_id=self.signature_request_id,
                                                                  data=self.SIGNATURE_REQUEST_SENT)
 
-    @override_settings(DEBUG=False)
+    @override_settings(DEBUG=False, HELLOSIGN_CLIENT_ID=None)
     def test_signer_url_required_hs_client_id(self):
+        delattr(settings, 'HELLOSIGN_CLIENT_ID')
         with self.assertRaises(AttributeError) as e:
             resp = signer_url_js(self.obj, self.user.email)
 
-    @override_settings(DEBUG=False, HELLOSIGN_CLIENT_ID='12345678910-HS')
-    def test_signer_url_required_hs_client_id(self):
+    @override_settings(DEBUG=False, HELLOSIGN_CLIENT_ID='12345678910-HS', HELLOSIGN_AUTHENTICATION=None)
+    def test_signer_url_required_hs_authentication(self):
+        delattr(settings, 'HELLOSIGN_AUTHENTICATION')
         with self.assertRaises(Exception) as e:
             resp = signer_url_js(self.obj, self.user.email)
 

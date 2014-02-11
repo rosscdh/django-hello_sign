@@ -13,9 +13,6 @@ from .models import hellosign_webhook_event_recieved
 
 import json
 
-HELLOSIGN_API_KEY = getattr(settings, 'HELLOSIGN_API_KEY', None)
-assert HELLOSIGN_API_KEY is not None, 'You must define a settings.HELLOSIGN_API_KEY see: http://www.hellosign.com/home/myAccount/current_tab/integrations'
-
 
 class HelloSignWebhookEventHandler(CreateView):
     """
@@ -38,7 +35,7 @@ class HelloSignWebhookEventHandler(CreateView):
         event_type = event_data['event'].get('event_type')
         event_time = event_data['event'].get('event_time')
 
-        assert event_hash == hmac.new(HELLOSIGN_API_KEY, (event_time + event_type), hashlib.sha256).hexdigest(), 'event_hash does not match see: http://www.hellosign.com/api/reference#EventHashVerification'
+        assert event_hash == hmac.new(settings.HELLOSIGN_API_KEY, (event_time + event_type), hashlib.sha256).hexdigest(), 'event_hash does not match see: http://www.hellosign.com/api/reference#EventHashVerification'
 
     def extract_json_data(self, body):
         logger.debug('Post from HelloSign: %s' % body)

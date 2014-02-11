@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
+from django.conf import settings
 from django.core.cache import cache
 from django.dispatch import receiver
 from django.test import TestCase, Client
 from django.core.urlresolvers import reverse
 
+import hashlib, hmac
 
 from ..models import HelloSignRequest, HelloSignLog
 from ..views import HelloSignWebhookEventHandler
@@ -14,12 +16,21 @@ from .models import TestMonkeyModel
 
 import json
 
-"""
-Test signal listner to handle the signal fired event
-"""
+
 @receiver(hellosign_webhook_event_recieved)
 def on_hellosign_webhook_event_recieved(**kwargs):
+    """
+    Test signal listner to handle the signal fired event
+    """
     cache.set('hellosign_webhook_event_recieved_keys', kwargs.keys())
+
+
+def _generated_event_hash_to_match_test_api_key(HELLOSIGN_API_KEY, event_time, event_type):
+    """
+    In order to process webhooks an event_hash is passed from hellosign
+    we need to simulate this event_hash based on our current settings
+    """
+    return hmac.new(HELLOSIGN_API_KEY, (event_time + event_type), hashlib.sha256).hexdigest()
 
 
 class HelloSignWebhookEventHandlerTest(TestCase):
@@ -53,7 +64,16 @@ class HelloSignWebhookEventHandlerTest(TestCase):
         i.e. HelloSign sends a post object with key "json" that is set to an actual
         string of JSON
         """
-        return { 'json': json.dumps(HELLOSIGN_WEBHOOK_EVENT_DATA['SIGNATURE_REQUEST_SENT']) }
+        data = HELLOSIGN_WEBHOOK_EVENT_DATA['SIGNATURE_REQUEST_SENT']
+
+        event_time = data['event']['event_time']
+        event_type = data['event']['event_type']
+        api_key = settings.HELLOSIGN_API_KEY
+
+        # get a matching event hash
+        data['event']['event_hash'] = _generated_event_hash_to_match_test_api_key(HELLOSIGN_API_KEY=api_key, event_time=event_time, event_type=event_type)
+
+        return { 'json': json.dumps(data) }
 
     def get_hellosign_post_response(self):
         return self.client.post(reverse('sign:hellosign_webhook_event'), self.get_webhook_event_post_data())

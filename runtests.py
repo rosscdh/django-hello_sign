@@ -14,6 +14,10 @@ DATABASES = {
 
 settings.configure(DEBUG = True,
                    DATABASES=DATABASES,
+                   HELLOSIGN_AUTHENTICATION = ("founders@lawpal.com", "test2007"),
+                   HELLOSIGN_API_KEY='12345678910111213141516171819201234567891011121314151617181920',
+                   HELLOSIGN_CLIENT_ID='9sc892aa172754698e3fa30dedee3836',
+                   HELLOSIGN_CLIENT_SECRET='8d330244b9971abfe789f5224551139e',
                    ROOT_URLCONF='hello_sign.tests.urls',
                    INSTALLED_APPS = ('django.contrib.auth',
                                      'django.contrib.contenttypes',

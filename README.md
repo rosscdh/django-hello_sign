@@ -59,6 +59,53 @@ can be a class method or indeed a seperate service that compiles html or some
 other markup format into a pdf/doc/docx file
 
 
+Setup your signal handler
+
+```
+from hello_sign.signals import hellosign_webhook_event_recieved
+
+
+@receiver(hellosign_webhook_event_recieved)
+def on_hellosign_webhook_event_recieved(sender, hellosign_log, signature_request_id, hellosign_request, event_type, data, **kwargs):
+    """
+    Handle the signal
+    """
+    logging.info('Recieved event: %s for request: %s' % (event_type, hellosign_request,))
+    engageletter = hellosign_request.source_object
+    user, status = hellosign_log.signer_status
+
+    if hellosign_log.event_type == 'signature_request_viewed':
+        # Mark for this event
+        handle_signature_request_viewed()
+
+    elif hellosign_log.event_type == 'signature_request_signed':
+        # Mark for this event
+        handle_signature_request_signed()
+
+    elif hellosign_log.event_type == 'signature_request_sent':
+        # Mark for this event
+        handle_signature_request_sent()
+
+    elif hellosign_log.event_type == 'signature_request_all_signed':
+        # Mark for this event
+        handle_signature_request_all_signed()
+
+    elif hellosign_log.event_type == 'signature_request_invalid':
+        # Mark for this event
+        handle_signature_request_invalid()
+
+    elif hellosign_log.event_type == 'file_error':
+        # Mark for this event
+        handle_file_error()
+
+    else:
+        # Invalid Event log as error and or raise exception
+        handle_invalid()
+
+
+```
+
+
 Helpers
 -------------
 

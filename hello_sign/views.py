@@ -9,7 +9,7 @@ import hashlib, hmac
 from . import logger
 
 from .models import HelloSignRequest, HelloSignLog
-from .models import hellosign_webhook_event_recieved
+from .signals import hellosign_webhook_event_recieved
 
 import json
 

@@ -94,7 +94,7 @@ class HelloSignSigningUrl(models.Model):
     signature_id = models.CharField(max_length=128, db_index=True)
     # set to False by the signals.on_signature_request_viewed_invalidate_signer_url
     has_been_viewed = models.BooleanField(default=False)
-    expires_at = models.DateTimeField(auto_now=False, auto_now_add=False, db_index=True)
+    expires_at = models.DateTimeField(auto_now=False, auto_now_add=False, null=True, db_index=True)
     dateof = models.DateTimeField(auto_now=False, auto_now_add=True, db_index=True)
     data = JSONField(default={})
 

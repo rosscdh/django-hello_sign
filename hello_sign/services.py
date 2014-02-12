@@ -146,8 +146,7 @@ class HelloSignSignerService(BaseHellSignHelper):
         # Create a SignUrl Object for the record
         #
         signing_url_log, is_new = HelloSignSigningUrl.objects.get_or_create(request=self.hellosign_request,
-                                                                            signature_id=signature_id,
-                                                                            expires_at=expires_at)
+                                                                            signature_id=signature_id)
         signing_url_log.expires_at = expires_at
         signing_url_log.data = resp_json
         signing_url_log.save(update_fields=['expires_at', 'data'])

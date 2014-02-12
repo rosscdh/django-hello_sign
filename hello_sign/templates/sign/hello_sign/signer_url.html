@@ -1,4 +1,4 @@
-{% if signer_url %}
+{% if sign_url %}
 <script src="//s3.amazonaws.com/cdn.hellofax.com/js/embedded.js"></script>
 <script type="text/javascript">
 $(document).ready(function () {
@@ -21,7 +21,7 @@ $(document).ready(function () {
     /**
     * WARNING : No signer_url was provided
     */
-    {% if DEBUG %}console.log('No signer_url was provided'){% endif %}
+    {% if DEBUG %}console.log('No sign_url was provided'){% endif %}
 
 });
 </script>

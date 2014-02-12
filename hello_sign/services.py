@@ -136,7 +136,8 @@ class HelloSignSignerService(BaseHellSignHelper):
         """
         Process the HS response to an embeded signature url
         """
-        resp_json = response.json()['embedded']
+        resp_json = response.json()
+        resp_json = resp_json.get('embedded', {})
 
         signature_id = signature.get('signature_id')
 

@@ -22,12 +22,18 @@ from ..templatetags.hello_sign_tags import (STATUS_CODE_CHOICES,
 import datetime
 
 
-def _SIGNATURE_URL_RESPONSE(signature_id, expires_at, token):
+def _SIGNATURE_URL_RESPONSE(signature_id, expires_at, token, **kwargs):
     signature_url_response = SIGNATURE_URL_REQUEST.copy()
 
     signature_url_response['embedded']['expires_at'] = expires_at
-    signature_url_response['embedded']['sign_url'] = signature_url_response['embedded']['sign_url'].format(signature_id=signature_id,
-                                                                                                           token=token)
+    #
+    # if we have provided a sign_url then use it (taking into account the need to pass in None)
+    # otherwise if the default sign_url is a string then replace teh tokens with our passed in values
+    # otherwise just use the default value
+    #
+    sign_url = kwargs.get('sign_url') if 'sign_url' in kwargs else signature_url_response['embedded']['sign_url'].format(signature_id=signature_id, token=token) if type(signature_url_response['embedded']['sign_url']) in [str, unicode] else signature_url_response['embedded']['sign_url']
+    
+    signature_url_response['embedded']['sign_url'] = sign_url
 
     return json.dumps(signature_url_response)
 
@@ -124,18 +130,26 @@ class SignerUrlJavascriptTest(DjangoTestCase):
     @httpretty.activate
     @override_settings(DEBUG=False, HELLOSIGN_CLIENT_ID='12345678910-HS', HELLOSIGN_AUTHENTICATION=('test', 'password'))
     def test_signer_url_js_valid(self):
+        expected_sign_url = 'https://www.hellosign.com/editor/embeddedSign?signature_id={signature_id}&token=ab066813dea6612cf284992d764d05ff'.format(signature_id=self.signature_id)
         httpretty.register_uri(httpretty.GET, re.compile(r"^https://api.hellosign.com/v3/(.*)$"),
-                               body=_SIGNATURE_URL_RESPONSE(signature_id=self.signature_id, expires_at=int(time.time()), token=self.token),
+                               body=_SIGNATURE_URL_RESPONSE(signature_id=self.signature_id, expires_at=int(time.time()), token=self.token, sign_url=expected_sign_url),
                                status=200)
 
         self.obj = self.subject.objects.get(pk=self.obj.pk)
         resp = signer_url_js(self.obj, self.user.email)
-        self.assertEqual(resp, {'DEBUG': 'false', 'signer_url': u'https://www.hellosign.com/editor/embeddedSign?signature_id={signature_id}&token=ab066813dea6612cf284992d764d05ff'.format(signature_id=self.signature_id), 'HELLOSIGN_CLIENT_ID': '12345678910-HS'})
+        self.assertEqual(resp, {'DEBUG': 'false', 'sign_url': expected_sign_url, 'HELLOSIGN_CLIENT_ID': '12345678910-HS'})
 
+    @httpretty.activate
     @override_settings(DEBUG=True, HELLOSIGN_CLIENT_ID='12345678910-HS', HELLOSIGN_AUTHENTICATION=('test', 'password'))
     def test_signer_url_js_expired(self):
         """
         if no sig_url has been provided then return None
         """
+        expected_sign_url = None
+        httpretty.register_uri(httpretty.GET, re.compile(r"^https://api.hellosign.com/v3/(.*)$"),
+                               body=_SIGNATURE_URL_RESPONSE(signature_id=self.signature_id, expires_at=int(time.time() - 1000), token=self.token, sign_url=expected_sign_url),
+                               status=200)
+
+        self.obj = self.subject.objects.get(pk=self.obj.pk)
         resp = signer_url_js(self.obj, self.user.email)
-        self.assertEqual(resp, {'DEBUG': 'true', 'signer_url': None, 'HELLOSIGN_CLIENT_ID': '12345678910-HS'})
+        self.assertEqual(resp, {'DEBUG': 'true', 'sign_url': expected_sign_url, 'HELLOSIGN_CLIENT_ID': '12345678910-HS'})

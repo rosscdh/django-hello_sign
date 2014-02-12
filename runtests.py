@@ -14,6 +14,7 @@ DATABASES = {
 
 settings.configure(DEBUG = True,
                    DATABASES=DATABASES,
+                   USE_TZ=True,
                    HELLOSIGN_AUTHENTICATION = ("founders@lawpal.com", "test2007"),
                    HELLOSIGN_API_KEY='12345678910111213141516171819201234567891011121314151617181920',
                    HELLOSIGN_CLIENT_ID='9sc892aa172754698e3fa30dedee3836',

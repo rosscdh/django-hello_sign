@@ -1,0 +1,9 @@
+image: kencochrane/django-docker
+
+script:
+  - python runtests.py
+
+notify:
+  email:
+    recipients:
+      - ross@lawpal.com

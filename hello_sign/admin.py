@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import HelloSignRequest, HelloSignLog
+from .models import HelloSignRequest, HelloSignLog, HelloSignSigningUrl
 
 
 class HelloSignRequestAdmin(admin.ModelAdmin):
@@ -14,5 +14,13 @@ class HelloSignLogAdmin(admin.ModelAdmin):
     search_fields = ('event_type',)
 
 
+class HelloSignSigningUrlAdmin(admin.ModelAdmin):
+    list_display = ('request', 'signature_id', 'has_been_viewed', 'expires_at', 'dateof',)
+    list_filter = ['has_been_viewed']
+    search_fields = ('request', 'signature_id',)
+
+
 admin.site.register(HelloSignRequest, HelloSignRequestAdmin)
 admin.site.register(HelloSignLog, HelloSignLogAdmin)
+admin.site.register(HelloSignSigningUrl, HelloSignSigningUrlAdmin)
+

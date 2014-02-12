@@ -86,5 +86,25 @@ class HelloSignLog(models.Model):
         return (None, None)
 
 
-from .signals import (hellosign_webhook_event_recieved,
-                      on_signature_request_viewed_invalidate_signer_url,)
+class HelloSignSigningUrl(models.Model):
+    """
+    Signing Url Record
+    """
+    request = models.ForeignKey('hello_sign.HelloSignRequest')
+    signature_id = models.CharField(max_length=128, unique=True, db_index=True)
+    # set to False by the signals.on_signature_request_viewed_invalidate_signer_url
+    has_been_viewed = models.BooleanField(default=False)
+    expires_at = models.DateTimeField(auto_now=False, auto_now_add=False, db_index=True)
+    dateof = models.DateTimeField(auto_now=False, auto_now_add=True, db_index=True)
+    data = JSONField(default={})
+
+    @property
+    def sign_url(self):
+        return self.data.get('sign_url')
+
+    @property
+    def has_expired(self):
+        return self.expires_at < datetime.utcnow()
+
+
+from .signals import on_signature_request_viewed_invalidate_signer_url

@@ -118,7 +118,7 @@ in your template
 {% signer_url_js my_object_with_mixin user.email %}
 ```
 
-Which will then the signature url for that user. 
+Which will then provide the signature url for that user, if it is available.
 
 HelloSign expires the url as soon as its looked at. So we have a bult in signal 
 to invalidate the signer url.

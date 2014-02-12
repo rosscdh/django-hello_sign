@@ -5,7 +5,7 @@ $(document).ready(function () {
     'use strict';
     HelloSign.init('{{ HELLOSIGN_CLIENT_ID }}');
     HelloSign.open({
-        url: "{{ signer_url|safe }}",               // Signature url your fetched via the API on your server
+        url: "{{ sign_url|safe }}",               // Signature url your fetched via the API on your server
         allowCancel: true,                     // (optional) Whether to allow the user to cancel i.e. close the iFrame without signing (default is true)
         debug: {{ DEBUG }},
         messageListener: function(eventData) { // (optional) Called whenever the iFrame is messaging your page

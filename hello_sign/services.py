@@ -120,7 +120,6 @@ class HelloSignSignerService(BaseHellSignHelper):
                         logger.debug('can get signature url, as current is None or has expired')
 
                         resp = self.embedded_signature_url(signature_id=signer.get('signature_id'))
-
                         signing_url_log = self.process_embedded_signature_url(signature=signer, response=resp)
                         #
                         # These are critical 

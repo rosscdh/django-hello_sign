@@ -44,6 +44,6 @@ def signer_url_js(obj, email):
     return {
         'HELLOSIGN_CLIENT_ID': settings.HELLOSIGN_CLIENT_ID,
         'DEBUG': 'true' if settings.DEBUG is True else 'false',
-        'signer_url': obj.signing_url(signer_email=email),
+        'sign_url': obj.sign_url_for_email(signer_email=email),
     }
 signer_url_js.is_safe = True

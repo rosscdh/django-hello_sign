@@ -57,9 +57,9 @@ class HelloSignModelMixin(ModelContentTypeMixin):
     def signature_request_id(self):
         return getattr(self.hellosign, 'signature_request_id', None)
 
-    def signing_url(self, signer_email):
+    def sign_url_for_email(self, signer_email):
         """
-        Get the signing_url for a specific email address
+        Get the sign_url for a specific email address
         """
         service = HelloSignSignerService(obj=self, signer_email=signer_email)
         return service.sign_url_for_signer(email=signer_email)

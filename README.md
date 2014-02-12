@@ -120,8 +120,8 @@ in your template
 
 Which will then the signature url for that user. 
 
-HelloSign expires the url as soon as its looked at. However does not send an event
-So it makes it difficult to invalidate the signer_url
+HelloSign expires the url as soon as its looked at. So we have a bult in signal 
+to invalidate the signer url.
 
 
 

@@ -1,10 +1,5 @@
 image: kencochrane/django-docker
 
-script:
-  - git clone https://github.com/rosscdh/django-hello_sign.git
-  - pip install -r requirements.txt
-  - python runtests.py
-
 notify:
   email:
     recipients:

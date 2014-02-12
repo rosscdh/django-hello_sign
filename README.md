@@ -105,6 +105,25 @@ def on_hellosign_webhook_event_recieved(sender, hellosign_log, signature_request
 
 ```
 
+Template Tags
+-------------
+
+In order to make use of the HelloSign Javascript object (OAuth)
+
+in your template
+
+```
+{% load hello_sign_tags %}
+
+{% signer_url_js my_object_with_mixin user.email %}
+```
+
+Which will then the signature url for that user. 
+
+HelloSign expires the url as soon as its looked at. However does not send an event
+So it makes it difficult to invalidate the signer_url
+
+
 
 Helpers
 -------------

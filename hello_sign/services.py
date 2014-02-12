@@ -10,8 +10,25 @@ from datetime import timedelta, datetime
 
 from . import logger
 
+class AuthenticationSettingsException(Exception):
+    message = 'settings.HELLOSIGN_AUTHENTICATION tuple ("username", "password") has not been provided.'
 
-class HelloSignService(object):
+
+class BaseHellSignHelper(object):
+    hellosign_authentication = None
+
+    def __init__(self, **kwargs):
+        try:
+            self.hellosign_authentication = settings.HELLOSIGN_AUTHENTICATION
+            assert type(self.hellosign_authentication) == tuple
+            assert len(self.hellosign_authentication) == 2
+        except AttributeError:
+            msg = 'settings.HELLOSIGN_AUTHENTICATION tuple ("username", "password") has not been provided.'
+            logger.critical(msg)
+            raise AuthenticationSettingsException(msg)
+
+
+class HelloSignService(BaseHellSignHelper):
     """
     Service that allows us to send a document for signing
     """
@@ -28,10 +45,7 @@ class HelloSignService(object):
         self.subject = kwargs.get('subject', None)
         self.message = kwargs.get('message', None)
 
-        try:
-            self.hellosign_authentication = settings.HELLOSIGN_AUTHENTICATION
-        except AttributeError:
-            logger.critical("No settings.HELLOSIGN_AUTH has been specified. Please provide them")
+        super(HelloSignService, self).__init__(**kwargs)
 
     def send_for_signing(self, **kwargs):
         signature = self.HelloSignSignatureClass(title=self.title, subject=self.subject, message=self.message)
@@ -48,24 +62,18 @@ class HelloSignService(object):
         return result
 
 
-class HelloSignSignerService(object):
+class HelloSignSignerService(BaseHellSignHelper):
     """
     Service that returns various data for and about the signer
     """
     signer_email = None  # the current users email
     signatures = []  # the current set of signatures for a request
 
-    def __init__(self, signatures, signer_email=None):
+    def __init__(self, signatures, signer_email=None, **kwargs):
         self.signer_email = signer_email
         self.signatures = signatures
 
-        try:
-            self.hellosign_authentication = settings.HELLOSIGN_AUTHENTICATION
-
-        except AttributeError:
-            msg = 'No settings.HELLOSIGN_AUTHENTICATION tuple (username:password) has been specified. Please provide them'
-            logger.critical(msg)
-            raise Exception(msg)
+        super(HelloSignSignerService, self).__init__(**kwargs)
 
         self.process()
 
@@ -76,14 +84,15 @@ class HelloSignSignerService(object):
     def process(self):
         """
         Get the embedded signature url and expiry from HS
+        @TODO refactor @CODESMELL
         """
         for i, signer in enumerate(self.signatures):
+            logger.debug('HelloSign get a signing_url for signer: %s' % signer)
             #
             # If we have NO email address specified then update all the signer dicts
             # if we have an email and the current signers email matches it then update
             # just that one
             #
-            logger.debug('HelloSign get a signing_url for signer: %s' % signer)
             if self.signer_email is None or self.signer_email == signer.get('signer_email_address'):
 
                 status_code = signer.get('status_code', None)
@@ -120,13 +129,22 @@ class HelloSignSignerService(object):
 
 
     def sign_url_for_signer(self, email):
-        for i, signer in enumerate(self.signatures):
+        """
+        Loop over the provided signatures and look for the specific email
+        """
+        logger.debug('Finding sign_url_for_signer: %s' % email)
 
+        for i, signer in enumerate(self.signatures):
             status_code = signer.get('status_code', None)
+            logger.debug('Status code for sign_url_for_signer: %s' % status_code)
 
             if status_code in ['awaiting_signature', None]:
 
                 if signer.get('signer_email_address') == email:
-                    return signer.get('sign_url')
+
+                    sign_url = signer.get('sign_url')
+                    logger.debug('Found url for: %s %s' % (email, sign_url))
+
+                    return sign_url
         return None
 

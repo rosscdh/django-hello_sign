@@ -86,4 +86,5 @@ class HelloSignLog(models.Model):
         return (None, None)
 
 
-from .signals import hellosign_webhook_event_recieved
+from .signals import (hellosign_webhook_event_recieved,
+                      on_signature_request_viewed_invalidate_signer_url,)

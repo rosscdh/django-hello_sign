@@ -13,6 +13,10 @@ import datetime
 HELLOSIGN_TEST_MODE = getattr(settings, 'HELLOSIGN_TEST_MODE', 1)
 
 
+class OverrideModelMethodException(Exception):
+    message = 'You must override this method'
+
+
 class ModelContentTypeMixin(object):
     """
     Mixin to provide get_content_type_object of the model its mixed in with
@@ -51,6 +55,7 @@ class HelloSignModelMixin(ModelContentTypeMixin):
 
     def signing_url(self, signer_email):
         """
+        Get the signing_url for a specific email address
         """
         service = HelloSignSignerService(signatures=self.signatures[::], signer_email=signer_email)
         return service.sign_url_for_signer(email=signer_email)
@@ -95,13 +100,13 @@ class HelloSignModelMixin(ModelContentTypeMixin):
         """
         Method to set the document title, displayed in the HelloSign Interface
         """
-        raise Exception('You must override this method and return the title of the document to send to HelloSign')
+        raise OverrideModelMethodException('You must override hs_document_title and return the title of the document to send to HelloSign')
 
     def hs_document(self):
         """
         Return the document to be senf for signing
         """
-        raise Exception('You must override this method and return the pdf/docx/doc file to send to HelloSign')
+        raise OverrideModelMethodException('You must override hs_document and return the pdf/docx/doc file to send to HelloSign')
 
     def get_hs_service(self):
         """

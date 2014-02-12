@@ -9,6 +9,8 @@ import time
 from datetime import timedelta, datetime
 
 from . import logger
+from .models import HelloSignSigningUrl
+
 
 class AuthenticationSettingsException(Exception):
     message = 'settings.HELLOSIGN_AUTHENTICATION tuple ("username", "password") has not been provided.'
@@ -67,11 +69,16 @@ class HelloSignSignerService(BaseHellSignHelper):
     Service that returns various data for and about the signer
     """
     signer_email = None  # the current users email
+    obj = None
+    hellosign_request = None
+    signatures = None
     signatures = []  # the current set of signatures for a request
 
-    def __init__(self, signatures, signer_email=None, **kwargs):
+    def __init__(self, obj, signer_email=None, **kwargs):
         self.signer_email = signer_email
-        self.signatures = signatures
+        self.obj = obj
+        self.hellosign_request = obj.hellosign # method on mixin to get latest HS response object
+        self.signatures = obj.signatures[::]
 
         super(HelloSignSignerService, self).__init__(**kwargs)
 
@@ -119,6 +126,15 @@ class HelloSignSignerService(BaseHellSignHelper):
                             signer['sign_url'] = resp_json.get('sign_url')
                             signer['expires_at'] = resp_json.get('expires_at')
 
+                            expires_at = datetime.fromtimestamp(resp_json.get('expires_at'))
+                            #
+                            # Create a SignUrl Object for the record
+                            #
+                            signing_url_log, is_new = HelloSignSigningUrl.objects.get_or_create(request=self.hellosign_request,
+                                                                                                signature_id=signature_id,
+                                                                                                expires_at=expires_at)
+                            logger.debug('Record the sign_url object: %s, is_new: %s' % (signing_url, is_new))
+
                             self.signatures[i] = signer
 
                         except Exception as e:
@@ -143,7 +159,7 @@ class HelloSignSignerService(BaseHellSignHelper):
                 if signer.get('signer_email_address') == email:
 
                     sign_url = signer.get('sign_url')
-                    logger.debug('Found url for: %s %s' % (email, sign_url))
+                    logger.debug('sign_url for: %s is %s' % (email, sign_url))
 
                     return sign_url
         return None

@@ -57,7 +57,7 @@ class HelloSignModelMixin(ModelContentTypeMixin):
         """
         Get the signing_url for a specific email address
         """
-        service = HelloSignSignerService(signatures=self.signatures[::], signer_email=signer_email)
+        service = HelloSignSignerService(obj=self, signer_email=signer_email)
         return service.sign_url_for_signer(email=signer_email)
 
     @property
@@ -70,7 +70,7 @@ class HelloSignModelMixin(ModelContentTypeMixin):
         Setter to allow us to update the signatures details segment of the
         current json object
         """
-        obj = self.hellosign
+        obj = self.hellosign  # most recent HSRequest object
         obj.data['signatures'] = value
         obj.save(update_fields=['data'])
 

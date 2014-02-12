@@ -2,6 +2,8 @@
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 
+from jsonfield import JSONField
+
 from .services import HelloSignService, HelloSignSignerService
 from .models import HelloSignRequest
 
@@ -30,6 +32,8 @@ class ModelContentTypeMixin(object):
 
 
 class HelloSignModelMixin(ModelContentTypeMixin):
+    data = JSONField(default={})  # required to store data
+
     def hellosign_requests(self):
         """
         QuerySet of HelloSignRequest objects
@@ -73,6 +77,10 @@ class HelloSignModelMixin(ModelContentTypeMixin):
         obj = self.hellosign  # most recent HSRequest object
         obj.data['signatures'] = value
         obj.save(update_fields=['data'])
+
+        # and the local model
+        self.data['signatures'] = value
+        self.save(update_fields=['data'])
 
     def hs_subject(self):
         """

@@ -91,7 +91,7 @@ class HelloSignSigningUrl(models.Model):
     Signing Url Record
     """
     request = models.ForeignKey('hello_sign.HelloSignRequest')
-    signature_id = models.CharField(max_length=128, unique=True, db_index=True)
+    signature_id = models.CharField(max_length=128, db_index=True)
     # set to False by the signals.on_signature_request_viewed_invalidate_signer_url
     has_been_viewed = models.BooleanField(default=False)
     expires_at = models.DateTimeField(auto_now=False, auto_now_add=False, db_index=True)

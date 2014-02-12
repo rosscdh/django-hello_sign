@@ -121,34 +121,39 @@ class HelloSignSignerService(BaseHellSignHelper):
 
                         resp = self.embedded_signature_url(signature_id=signer.get('signature_id'))
 
-                        try:
-                            resp_json = resp.json()['embedded']
-
-                            signer['sign_url'] = resp_json.get('sign_url')
-                            signer['expires_at'] = resp_json.get('expires_at')
-
-                            signature_id = signer.get('signature_id')
-
-                            expires_at = datetime.fromtimestamp(resp_json.get('expires_at')).replace(tzinfo=utc)
-                            #
-                            # Create a SignUrl Object for the record
-                            #
-                            signing_url_log, is_new = HelloSignSigningUrl.objects.get_or_create(request=self.hellosign_request,
-                                                                                                signature_id=signature_id)
-                            signing_url_log.expires_at = expires_at
-                            signing_url_log.data = resp_json
-                            signing_url_log.save(update_fields=['expires_at', 'data'])
-
-                            logger.debug('Record the sign_url object: %s, is_new: %s' % (signing_url_log, is_new))
-
-                            self.signatures[i] = signer
-
-                        except Exception as e:
-                            logger.critical('Could not retrieve signer signature url: %s' % e)
+                        signing_url_log = self.process_embedded_signature_url(signature=signer, response=resp)
+                        #
+                        # These are critical 
+                        # the sign_url gets used in the search for the users sign_url
+                        # in self.sign_url_for_signer
+                        #
+                        signer['sign_url'] = signing_url_log.sign_url
+                        signer['expires_at'] = signing_url_log.expires_at
 
                     else:
                         logger.info('signing_url status_code is invalid has not expired: %s for : %s' % (expires_at, self.signatures[i]))
 
+    def process_embedded_signature_url(self, signature, response):
+        """
+        Process the HS response to an embeded signature url
+        """
+        resp_json = response.json()['embedded']
+
+        signature_id = signature.get('signature_id')
+
+        expires_at = datetime.fromtimestamp(resp_json.get('expires_at')).replace(tzinfo=utc)
+        #
+        # Create a SignUrl Object for the record
+        #
+        signing_url_log, is_new = HelloSignSigningUrl.objects.get_or_create(request=self.hellosign_request,
+                                                                            signature_id=signature_id,
+                                                                            expires_at=expires_at)
+        signing_url_log.expires_at = expires_at
+        signing_url_log.data = resp_json
+        signing_url_log.save(update_fields=['expires_at', 'data'])
+
+        logger.debug('Record the sign_url object: %s, is_new: %s' % (signing_url_log, is_new))
+        return signing_url_log
 
     def sign_url_for_signer(self, email):
         """
@@ -161,6 +166,7 @@ class HelloSignSignerService(BaseHellSignHelper):
             logger.debug('Status code for sign_url_for_signer: %s' % status_code)
 
             if status_code in ['awaiting_signature', None]:
+                logger.debug('Valid status code for sign_url_for_signer: %s' % status_code)
 
                 if signer.get('signer_email_address') == email:
 

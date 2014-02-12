@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.conf import settings
+from django.utils.timezone import utc
 from hellosign import HelloSigner, HelloDoc
 from hellosign import (HelloSignSignature,
                        HelloSignEmbeddedDocumentSignature,
@@ -126,14 +127,19 @@ class HelloSignSignerService(BaseHellSignHelper):
                             signer['sign_url'] = resp_json.get('sign_url')
                             signer['expires_at'] = resp_json.get('expires_at')
 
-                            expires_at = datetime.fromtimestamp(resp_json.get('expires_at'))
+                            signature_id = signer.get('signature_id')
+
+                            expires_at = datetime.fromtimestamp(resp_json.get('expires_at')).replace(tzinfo=utc)
                             #
                             # Create a SignUrl Object for the record
                             #
                             signing_url_log, is_new = HelloSignSigningUrl.objects.get_or_create(request=self.hellosign_request,
-                                                                                                signature_id=signature_id,
-                                                                                                expires_at=expires_at)
-                            logger.debug('Record the sign_url object: %s, is_new: %s' % (signing_url, is_new))
+                                                                                                signature_id=signature_id)
+                            signing_url_log.expires_at = expires_at
+                            signing_url_log.data = resp_json
+                            signing_url_log.save(update_fields=['expires_at', 'data'])
+
+                            logger.debug('Record the sign_url object: %s, is_new: %s' % (signing_url_log, is_new))
 
                             self.signatures[i] = signer
 

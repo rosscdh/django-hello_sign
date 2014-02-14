@@ -9,8 +9,10 @@ $(document).ready(function () {
         allowCancel: true,                     // (optional) Whether to allow the user to cancel i.e. close the iFrame without signing (default is true)
         debug: {{ DEBUG }},
         messageListener: function(eventData) { // (optional) Called whenever the iFrame is messaging your page
-            /*  do something */ 
-        }    
+            if (eventData.event == HelloSign.EVENT_SIGNED) {
+                document.location.reload();
+            };
+        }
     });
 });
 </script>

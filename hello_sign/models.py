@@ -40,6 +40,9 @@ class HelloSignLog(models.Model):
         # newest first
         ordering = ['-id']
 
+    def __unicode__(self):
+        return u'%s (%s)' % (self.request, self.event_type)
+
     @property
     def response_data(self):
         return self.data['signature_request'].get('response_data', [])

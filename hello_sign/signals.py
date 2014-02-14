@@ -17,4 +17,10 @@ def on_signature_request_viewed_invalidate_signer_url(sender, hellosign_log, sig
     Invalidate the signer url when we recieve  signature_request_viewed event
     """
     if event_type == 'signature_request_viewed':
+        #
+        # shoudl be able to delete the HelloSignSigningUrl object for this
+        # event; but there is nothing to bund the HS event object
+        # with our HelloSignSigningUrl.signature_id and
+        # HelloSignSigningUrl.request object
+        #
         pass

@@ -136,23 +136,28 @@ class HelloSignSignerService(BaseHellSignHelper):
         """
         Process the HS response to an embeded signature url
         """
-        resp_json = response.json()
-        resp_json = resp_json.get('embedded', {})
+        if response.status_code not in [200,201]:
+            resp_json = response.json()
+            logger.critical('Could not record the signature url due to: %s, is_new: %s' % (response.status_code, resp_json))
 
-        signature_id = signature.get('signature_id')
+        else:
+            resp_json = response.json()
+            resp_json = resp_json.get('embedded', {})
 
-        expires_at = datetime.fromtimestamp(resp_json.get('expires_at')).replace(tzinfo=utc)
-        #
-        # Create a SignUrl Object for the record
-        #
-        signing_url_log, is_new = HelloSignSigningUrl.objects.get_or_create(request=self.hellosign_request,
-                                                                            signature_id=signature_id)
-        signing_url_log.expires_at = expires_at
-        signing_url_log.data = resp_json
-        signing_url_log.save(update_fields=['expires_at', 'data'])
+            signature_id = signature.get('signature_id')
 
-        logger.debug('Record the sign_url object: %s, is_new: %s' % (signing_url_log, is_new))
-        return signing_url_log
+            expires_at = datetime.fromtimestamp(resp_json.get('expires_at')).replace(tzinfo=utc)
+            #
+            # Create a SignUrl Object for the record
+            #
+            signing_url_log, is_new = HelloSignSigningUrl.objects.get_or_create(request=self.hellosign_request,
+                                                                                signature_id=signature_id)
+            signing_url_log.expires_at = expires_at
+            signing_url_log.data = resp_json
+            signing_url_log.save(update_fields=['expires_at', 'data'])
+
+            logger.debug('Record the sign_url object: %s, is_new: %s' % (signing_url_log, is_new))
+            return signing_url_log
 
     def sign_url_for_signer(self, email):
         """

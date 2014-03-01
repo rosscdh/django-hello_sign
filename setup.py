@@ -20,9 +20,6 @@ setup(
     url = "https://github.com/rosscdh/django-hello_sign",
     packages=['hello_sign'],
     long_description=read('README.md'),
-    install_requires = [
-        'hellosign',
-    ],
     dependency_links=[
         # HelloSign Api client
         'git+https://github.com/rosscdh/hellosign.git#egg=hellosign'

@@ -21,10 +21,11 @@ setup(
     packages=['hello_sign'],
     long_description=read('README.md'),
     install_requires = [
-        'hellosign==0.1.1',
+        'hellosign==0.1.1',  # must refer to package version explicitly **required**
     ],
     dependency_links=[
         # HelloSign Api client
+        # must refer to the specific .tar.gz as well as specify the egg+revision **required**
         'https://github.com/rosscdh/hellosign/archive/0.1.1.tar.gz#egg=hellosign-0.1.1'
     ],
     classifiers=[

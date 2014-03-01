@@ -25,7 +25,7 @@ setup(
     ],
     dependency_links=[
         # HelloSign Api client
-        'https://github.com/rosscdh/hellosign.git#egg=hellosign-0.1.1'
+        'https://github.com/rosscdh/hellosign.git#egg=hellosign-v0.1.1'
     ],
     classifiers=[
         'Development Status :: 1 - Alpha',

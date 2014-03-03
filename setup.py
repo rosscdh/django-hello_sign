@@ -21,7 +21,7 @@ setup(
     packages=['hello_sign'],
     long_description=read('README.md'),
     install_requires = [
-        'hellosign==0.1.1',  # must refer to package version explicitly **required**
+        'hellosign',  # must refer to package version explicitly **required**
     ],
     classifiers=[
         'Development Status :: 1 - Alpha',

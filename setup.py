@@ -23,11 +23,6 @@ setup(
     install_requires = [
         'hellosign==0.1.1',  # must refer to package version explicitly **required**
     ],
-    dependency_links=[
-        # HelloSign Api client
-        # must refer to the specific .tar.gz as well as specify the egg+revision **required**
-        'https://github.com/rosscdh/hellosign/archive/0.1.1.tar.gz#egg=hellosign-0.1.1'
-    ],
     classifiers=[
         'Development Status :: 1 - Alpha',
         'Environment :: Web Environment',

@@ -13,6 +13,6 @@ setup(
     url = "https://github.com/rosscdh/django-hello_sign",
     packages=['hello_sign'],
     install_requires = [
-        'hellosign',
-    ],
+        'hellosign',  # must refer to package version explicitly **required**
+    ]
 )

@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name = "django-hello_sign",
-    version = "0.1.5",
+    version = "0.1.6",
     author = "Ross Crawford-d'Heureuse",
     author_email = "ross@lawpal.com",
     description = ("Django app for integrating with HelloSign"),

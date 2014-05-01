@@ -127,36 +127,55 @@ class HelloSignModelMixin(ModelContentTypeMixin):
                                 subject=self.hs_subject(),
                                 message=self.hs_message())
 
-    def send_for_signing(self):
+    def send_for_signing(self, **kwargs):
         """
         Primary method used to send a document for signing
         """
         service = self.get_hs_service()
+        date_sent = str(datetime.datetime.utcnow())
         resp = service.send_for_signing(test_mode=HELLOSIGN_TEST_MODE,
-                                        client_id=settings.HELLOSIGN_CLIENT_ID)
+                                        client_id=settings.HELLOSIGN_CLIENT_ID,
+                                        **kwargs)
         # resp = service.send_for_signing(test_mode=HELLOSIGN_TEST_MODE)
-
-        if 'signature_request' not in resp.json() or resp.status_code not in [200]:
+        if resp.status_code not in [200, 201, 202]:
             raise Exception('Could not send document for signing at HelloSign: %s' % resp.json())
 
-        result = resp.json()['signature_request']
+        logger.debug('HelloSign Response: %s' % resp.content)
+
+        result = self.hs_post_process_result(resp=resp)
         #
-        # Add the date because HelloSign does not have a date
+        # Add the date because HelloSign does not provide a date
         #
         result.update({
-            'date_sent': str(datetime.datetime.utcnow())
+            'date_sent': date_sent
         })
 
-        # setup the hs request object
-        signature_request_id = result.get('signature_request_id') # get id
-        hellosign_request = HelloSignRequest.objects.create(signature_request_id=signature_request_id,
-                                                            content_object_type=self.get_content_type_object(),
-                                                            object_id=self.pk,
-                                                            data=result)
+        hellosign_request = self.hs_record_result(result=result)
+
         #
         # Update with our set date_sent variable
         #
         resp._content = json.dumps(result)
-        logger.info(u'Got HelloSign Signature Response: %s' % resp)
 
         return resp
+
+    def hs_post_process_result(self, resp):
+        result = resp.json()
+        #
+        # try return the default signature_request ugly namespace from HS
+        # otherwise jsut return the whole thing
+        #
+        result = result.get('signature_request', result)
+
+        return result
+
+    def hs_record_result(self, result):
+        # setup the hs request object
+        signature_request_id = result.get('signature_request_id') # get id
+
+        if signature_request_id:
+
+            return HelloSignRequest.objects.create(signature_request_id=signature_request_id,
+                                                   content_object_type=self.get_content_type_object(),
+                                                   object_id=self.pk,
+                                                   data=result)

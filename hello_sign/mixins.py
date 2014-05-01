@@ -102,7 +102,7 @@ class HelloSignModelMixin(ModelContentTypeMixin):
         Order here is important as it ties in tightly with the HS signers
         unfortunately
         """
-        return [{'name': u.get_full_name(), 'email': u.email} for u in [self.workspace.lawyer, self.user]]
+        raise OverrideModelMethodException('You must override hs_signers and return a dict {"name": name, "email": email}')
 
     def hs_document_title(self):
         """
@@ -157,6 +157,6 @@ class HelloSignModelMixin(ModelContentTypeMixin):
         # Update with our set date_sent variable
         #
         resp._content = json.dumps(result)
-        logger.info('Got HelloSign Signature Response: %s' % resp)
+        logger.info(u'Got HelloSign Signature Response: %s' % resp)
 
         return resp

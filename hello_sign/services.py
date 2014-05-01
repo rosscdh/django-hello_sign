@@ -37,7 +37,7 @@ class HelloSignService(BaseHellSignHelper):
     """
     def __init__(self, document, invitees, **kwargs):
         self.document = document
-        logger.info('Submitting document to HelloSign: "%s"' % document.name)
+        logger.info(u'Submitting document to HelloSign: "%s"' % document.name)
 
         # Dependency injected class for testing
         self.HelloSignSignatureClass = kwargs.get('HelloSignSignatureClass', HelloSignEmbeddedDocumentSignature)
@@ -95,7 +95,7 @@ class HelloSignSignerService(BaseHellSignHelper):
         @TODO refactor @CODESMELL
         """
         for i, signer in enumerate(self.signatures):
-            logger.debug('HelloSign get a signing_url for signer: %s' % signer)
+            logger.debug(u'HelloSign get a signing_url for signer: %s' % signer)
             #
             # If we have NO email address specified then update all the signer dicts
             # if we have an email and the current signers email matches it then update
@@ -111,13 +111,13 @@ class HelloSignSignerService(BaseHellSignHelper):
                 # If we are waiting on a signature or have no code
                 #
                 if status_code in ['awaiting_signature', None]:
-                    logger.debug('signing_url status_code is valid and we can try get a signature')
+                    logger.debug(u'signing_url status_code is valid and we can try get a signature')
                     #
                     # If we have no expries_at date (implies url has already been got)
                     # or if the expires at has expired
                     #
                     if expires_at is None or datetime.fromtimestamp(int(expires_at)) >= datetime.utcnow():
-                        logger.debug('can get signature url, as current is None or has expired')
+                        logger.debug(u'can get signature url, as current is None or has expired')
 
                         resp = self.embedded_signature_url(signature_id=signer.get('signature_id'))
                         signing_url_log = self.process_embedded_signature_url(signature=signer, response=resp)
@@ -131,6 +131,7 @@ class HelloSignSignerService(BaseHellSignHelper):
 
                     else:
                         logger.info('signing_url status_code is invalid has not expired: %s for : %s' % (expires_at, self.signatures[i]))
+                        pass
 
     def process_embedded_signature_url(self, signature, response):
         """
@@ -163,14 +164,14 @@ class HelloSignSignerService(BaseHellSignHelper):
         """
         Loop over the provided signatures and look for the specific email
         """
-        logger.debug('Finding sign_url_for_signer: %s' % email)
+        logger.debug(u'Finding sign_url_for_signer: %s' % email)
 
         for i, signer in enumerate(self.signatures):
             status_code = signer.get('status_code', None)
-            logger.debug('Status code for sign_url_for_signer: %s' % status_code)
+            logger.debug(u'Status code for sign_url_for_signer: %s' % status_code)
 
             if status_code in ['awaiting_signature', None]:
-                logger.debug('Valid status code for sign_url_for_signer: %s' % status_code)
+                logger.debug(u'Valid status code for sign_url_for_signer: %s' % status_code)
 
                 if signer.get('signer_email_address') == email:
 

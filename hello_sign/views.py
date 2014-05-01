@@ -38,7 +38,7 @@ class HelloSignWebhookEventHandler(CreateView):
         assert event_hash == hmac.new(settings.HELLOSIGN_API_KEY, (event_time + event_type), hashlib.sha256).hexdigest(), 'event_hash does not match see: http://www.hellosign.com/api/reference#EventHashVerification'
 
     def extract_json_data(self, body):
-        logger.debug('Post from HelloSign: %s' % body)
+        logger.debug(u'Post from HelloSign: %s' % body)
         try:
             data = json.loads(body)
 
@@ -49,7 +49,7 @@ class HelloSignWebhookEventHandler(CreateView):
                 raise Exception('No signature_request key found in HelloSign Post body')
 
         except Exception as e:
-            logger.critical('Could not extract json from request.body in HelloSignWebhookEventHandler: %s' % e)
+            logger.critical(u'Could not extract json from request.body in HelloSignWebhookEventHandler: %s' % e)
             raise e
 
         return data
@@ -81,7 +81,7 @@ class HelloSignWebhookEventHandler(CreateView):
                                                 event_type=event_type,
                                                 data=data)
 
-        logger.info('Issuing hellosign_webhook_event_recieved signal')
+        logger.info(u'Issuing hellosign_webhook_event_recieved signal')
         hellosign_webhook_event_recieved.send(sender=self,
                                               signature_request_id=signature_request_id,
                                               event_type=event_type,

@@ -101,7 +101,7 @@ class SignerUrlJavascriptTest(DjangoTestCase):
 
     def setUp(self):
         self.lawyer = User.objects.create(email='test+lawyer@lawpal.com', first_name='Lawyer', last_name='Test', username='test-lawyer')
-        self.user = User.objects.create(email='test+customer@lawpal.com', first_name='Customer', last_name='Test', username='test-customer')
+        self.user = User.objects.create(email='test+customer@lawpal.com', first_name='Customër', last_name='Tëst', username='test-customer')
 
         self.SIGNATURE_REQUEST_SENT = HELLOSIGN_WEBHOOK_EVENT_DATA.get('SIGNATURE_REQUEST_SENT').get('signature_request')
         self.signature_request_id = self.SIGNATURE_REQUEST_SENT.get('signature_request_id')

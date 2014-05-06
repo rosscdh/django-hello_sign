@@ -11,7 +11,8 @@ class HelloSignRequest(models.Model):
     """
     content_object_type = models.ForeignKey('contenttypes.ContentType', db_index=True)
     object_id = models.IntegerField(db_index=True)
-    signature_request_id = models.CharField(max_length=128, db_index=True)
+    signature_request_id = models.CharField(null=True, blank=True, max_length=128, db_index=True)
+    unclaimed_draft_guid = models.CharField(null=True, blank=True, max_length=128, db_index=True)
     dateof = models.DateTimeField(auto_now=False, auto_now_add=True, db_index=True)
     data = JSONField(default={})
 

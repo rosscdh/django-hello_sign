@@ -4,7 +4,7 @@ from .models import HelloSignRequest, HelloSignLog, HelloSignSigningUrl
 
 
 class HelloSignRequestAdmin(admin.ModelAdmin):
-    list_display = ('source_object', 'signature_request_id', 'dateof',)
+    list_display = ('source_object', 'unclaimed_draft_guid', 'signature_request_id', 'dateof',)
     search_fields = ('signature_request_id',)
 
 

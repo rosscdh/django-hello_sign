@@ -64,16 +64,29 @@ class HelloSignService(BaseHelloSignHelper):
         return unclaimed_draft.create(auth=self.hellosign_authentication, **kwargs)
 
     def send_for_signing(self, **kwargs):
+        signature_request_id = kwargs.pop('signature_request_id', None)
+
         signature = self.HelloSignSignatureClass(title=self.title, subject=self.subject, message=self.message)
 
-        # Add invitees
-        for i in self.invitees:
-            signature.add_signer(HelloSigner(name=i['name'], email=i['email']))
+        if signature_request_id is not None:
+            #
+            # Existing signing request use details
+            #
+            return signature.detail(signature_request_id=signature_request_id,
+                                    auth=self.hellosign_authentication)
+        else:
+            #
+            # Is a new signature request add signers and add the doc and 
+            # use create
+            #
+            # Add invitees
+            for i in self.invitees:
+                signature.add_signer(HelloSigner(name=i['name'], email=i['email']))
 
-        signature.add_doc(HelloDoc(file_path=self.document.name))
+            signature.add_doc(HelloDoc(file_path=self.document.name))
 
-        # Perform the submission
-        return signature.create(auth=self.hellosign_authentication, **kwargs)
+            # Perform the submission
+            return signature.create(auth=self.hellosign_authentication, **kwargs)
 
 
 class HelloSignSignerService(BaseHelloSignHelper):

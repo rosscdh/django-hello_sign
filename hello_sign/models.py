@@ -27,6 +27,19 @@ class HelloSignRequest(models.Model):
     def source_object(self):
         return self.content_object_type.get_object_for_this_type(pk=self.object_id)
 
+    def get_absolute_url(self):
+        url = None
+
+        if self.signature_request_id is not None:
+            # return signing url
+            url = None
+
+        elif self.unclaimed_draft_guid is not None:
+            # return the unclaimed draft url
+            url = self.data.get('claim_url')
+
+        return url
+
 
 class HelloSignLog(models.Model):
     """

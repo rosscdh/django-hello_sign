@@ -4,7 +4,8 @@ from django.utils.timezone import utc
 from hellosign import HelloSigner, HelloDoc
 from hellosign import (HelloSignSignature,
                        HelloSignEmbeddedDocumentSignature,
-                       HelloSignEmbeddedDocumentSigningUrl)
+                       HelloSignEmbeddedDocumentSigningUrl,
+                       HelloSignUnclaimedDraftDocumentSignature)
 
 import time
 from datetime import timedelta, datetime
@@ -17,7 +18,7 @@ class AuthenticationSettingsException(Exception):
     message = 'settings.HELLOSIGN_AUTHENTICATION tuple ("username", "password") has not been provided.'
 
 
-class BaseHellSignHelper(object):
+class BaseHelloSignHelper(object):
     hellosign_authentication = None
 
     def __init__(self, **kwargs):
@@ -31,7 +32,7 @@ class BaseHellSignHelper(object):
             raise AuthenticationSettingsException(msg)
 
 
-class HelloSignService(BaseHellSignHelper):
+class HelloSignService(BaseHelloSignHelper):
     """
     Service that allows us to send a document for signing
     """
@@ -39,7 +40,7 @@ class HelloSignService(BaseHellSignHelper):
         self.document = document
         logger.info(u'Submitting document to HelloSign: "%s"' % document.name)
 
-        # Dependency injected class for testing
+        # Dependency injected class for testing and using other HS Classes
         self.HelloSignSignatureClass = kwargs.get('HelloSignSignatureClass', HelloSignEmbeddedDocumentSignature)
 
         self.invitees = invitees
@@ -49,6 +50,18 @@ class HelloSignService(BaseHellSignHelper):
         self.message = kwargs.get('message', None)
 
         super(HelloSignService, self).__init__(**kwargs)
+
+    def create_unclaimed_draft(self, **kwargs):
+        unclaimed_draft = HelloSignUnclaimedDraftDocumentSignature(title=self.title, subject=self.subject, message=self.message)
+
+        # Add invitees
+        for i in self.invitees:
+            unclaimed_draft.add_signer(HelloSigner(name=i['name'], email=i['email']))
+
+        unclaimed_draft.add_doc(HelloDoc(file_path=self.document.name))
+
+        # Perform the submission
+        return unclaimed_draft.create(auth=self.hellosign_authentication, **kwargs)
 
     def send_for_signing(self, **kwargs):
         signature = self.HelloSignSignatureClass(title=self.title, subject=self.subject, message=self.message)
@@ -60,12 +73,10 @@ class HelloSignService(BaseHellSignHelper):
         signature.add_doc(HelloDoc(file_path=self.document.name))
 
         # Perform the submission
-        result = signature.create(auth=self.hellosign_authentication, **kwargs)
-
-        return result
+        return signature.create(auth=self.hellosign_authentication, **kwargs)
 
 
-class HelloSignSignerService(BaseHellSignHelper):
+class HelloSignSignerService(BaseHelloSignHelper):
     """
     Service that returns various data for and about the signer
     """

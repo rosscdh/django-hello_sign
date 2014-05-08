@@ -4,6 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from jsonfield import JSONField
 
+from hellosign import HelloSignUnclaimedDraftDocumentSignature
 from .services import HelloSignService, HelloSignSignerService
 from .models import HelloSignRequest
 
@@ -116,56 +117,78 @@ class HelloSignModelMixin(ModelContentTypeMixin):
         """
         raise OverrideModelMethodException('You must override hs_document and return the pdf/docx/doc file to send to HelloSign')
 
-    def get_hs_service(self):
+    def get_hs_service(self, **kwargs):
         """
         Return the HelloSign service instance with all required to send for
         signing
         """
-        return HelloSignService(document=self.hs_document(),
-                                title=self.hs_document_title(),
-                                invitees=self.hs_signers(),
-                                subject=self.hs_subject(),
-                                message=self.hs_message())
+        kwargs.update({
+            'document': self.hs_document(),
+            'title': self.hs_document_title(),
+            'invitees': self.hs_signers(),
+            'subject': self.hs_subject(),
+            'message': self.hs_message(),
+        })
+        return HelloSignService(**kwargs)
+
+    def create_unclaimed_draft(self, requester_email_address, **kwargs):
+        """
+        Create an unsigned draft that can be used to setup a document for signing
+        """
+        service = self.get_hs_service(HelloSignSignatureClass=HelloSignUnclaimedDraftDocumentSignature)  # override the HelloSignSignatureClass
+
+        resp = service.create_unclaimed_draft(test_mode=HELLOSIGN_TEST_MODE,
+                                              client_id=settings.HELLOSIGN_CLIENT_ID,
+                                              requester_email_address=requester_email_address,
+                                              **kwargs)
+
+        return self.hs_process_result(resp=resp)
 
     def send_for_signing(self, **kwargs):
         """
         Primary method used to send a document for signing
         """
         service = self.get_hs_service()
-        date_sent = str(datetime.datetime.utcnow())
+
         resp = service.send_for_signing(test_mode=HELLOSIGN_TEST_MODE,
                                         client_id=settings.HELLOSIGN_CLIENT_ID,
                                         **kwargs)
-        # resp = service.send_for_signing(test_mode=HELLOSIGN_TEST_MODE)
+
+        return self.hs_process_result(resp=resp)
+
+    def hs_process_result(self, resp):
         if resp.status_code not in [200, 201, 202]:
-            raise Exception('Could not send document for signing at HelloSign: %s' % resp.json())
+            raise Exception('HelloSign Api Error: %s' % resp.json())
 
-        logger.debug('HelloSign Response: %s' % resp.content)
+        logger.debug('HelloSign response: %s' % resp.content)
 
+        # post process the result
         result = self.hs_post_process_result(resp=resp)
-        #
-        # Add the date because HelloSign does not provide a date
-        #
-        result.update({
-            'date_sent': date_sent
-        })
 
-        hellosign_request = self.hs_record_result(result=result)
+        self.hs_record_result(result=result)
 
         #
         # Update with our set date_sent variable
         #
         resp._content = json.dumps(result)
-
         return resp
 
     def hs_post_process_result(self, resp):
+        date_sent = str(datetime.datetime.utcnow())
+
         result = resp.json()
         #
         # try return the default signature_request ugly namespace from HS
         # otherwise jsut return the whole thing
         #
         result = result.get('signature_request', result)
+
+        #
+        # Add the date because HelloSign does not provide a date
+        #
+        result.update({
+            'date_sent': date_sent
+        })
 
         return result
 
@@ -179,3 +202,4 @@ class HelloSignModelMixin(ModelContentTypeMixin):
                                                    content_object_type=self.get_content_type_object(),
                                                    object_id=self.pk,
                                                    data=result)
+        return None

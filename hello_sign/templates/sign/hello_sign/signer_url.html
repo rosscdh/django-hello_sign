@@ -1,3 +1,4 @@
+{% load jsonify %}
 {% if sign_url %}
 <script src="//s3.amazonaws.com/cdn.hellofax.com/js/embedded.js"></script>
 <script type="text/javascript">
@@ -7,7 +8,7 @@ $(document).ready(function () {
     HelloSign.open({
         url: "{{ sign_url|safe }}",               // Signature url your fetched via the API on your server
         allowCancel: true,                     // (optional) Whether to allow the user to cancel i.e. close the iFrame without signing (default is true)
-        debug: {{ DEBUG }},
+        debug: {{ DEBUG|jsonify }},
         messageListener: function(eventData) { // (optional) Called whenever the iFrame is messaging your page
             if (eventData.event == HelloSign.EVENT_SIGNED) {
                 document.location.reload();

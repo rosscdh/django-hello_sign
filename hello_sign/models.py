@@ -30,11 +30,12 @@ class HelloSignRequest(models.Model):
     def get_absolute_url(self):
         url = None
 
-        if self.signature_request_id is not None:
+        # has been claimed so we should have the data
+        if self.data.get('is_claimed', False) is True and self.data.get('signature_request', None) is not None:
             # return signing url
-            url = None
+            url = self.data.get('signature_request', {}).get('signing_url', None)
 
-        elif self.unclaimed_draft_guid is not None:
+        elif self.unclaimed_draft_guid is not None and self.data.get('claim_url', None) is not None:
             # return the unclaimed draft url
             url = self.data.get('claim_url')
 

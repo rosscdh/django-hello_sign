@@ -66,18 +66,19 @@ class HelloSignService(BaseHelloSignHelper):
     def send_for_signing(self, **kwargs):
         signature_request_id = kwargs.pop('signature_request_id', None)
 
-        signature = self.HelloSignSignatureClass(title=self.title, subject=self.subject, message=self.message)
-
         if signature_request_id is not None:
             #
             # Existing signing request use details
             #
+            signature = self.HelloSignSignatureClass(signature_request_id=signature_request_id)
+            # get the detail
             return signature.detail(signature_request_id=signature_request_id,
                                     auth=self.hellosign_authentication)
         else:
             #
             # Is a new signature request add signers and add the doc and 
             # use create
+            signature = self.HelloSignSignatureClass(title=self.title, subject=self.subject, message=self.message)
             #
             # Add invitees
             for i in self.invitees:

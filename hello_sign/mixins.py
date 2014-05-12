@@ -177,11 +177,6 @@ class HelloSignModelMixin(ModelContentTypeMixin):
         date_sent = str(datetime.datetime.utcnow())
 
         result = resp.json()
-        #
-        # try return the default signature_request ugly namespace from HS
-        # otherwise jsut return the whole thing
-        #
-        result = result.get('signature_request', result)
 
         #
         # Add the date because HelloSign does not provide a date
@@ -194,12 +189,21 @@ class HelloSignModelMixin(ModelContentTypeMixin):
 
     def hs_record_result(self, result):
         # setup the hs request object
-        signature_request_id = result.get('signature_request_id') # get id
+        signature_request = result.get('signature_request', {})
+        signature_request_id = signature_request.get('signature_request_id') # get id
 
         if signature_request_id:
+            hs_request_object, is_new = HelloSignRequest.objects.get_or_create(signature_request_id=signature_request_id,
+                                                                               content_object_type=self.get_content_type_object(),
+                                                                               object_id=self.pk)
+            #
+            # Update the request object data dict with the signature_request object
+            #
+            data = hs_request_object.data
+            data.update(result)
+            # save it back
+            hs_request_object.data = data
+            hs_request_object.save(update_fields=['data'])
 
-            return HelloSignRequest.objects.create(signature_request_id=signature_request_id,
-                                                   content_object_type=self.get_content_type_object(),
-                                                   object_id=self.pk,
-                                                   data=result)
+            return hs_request_object
         return None

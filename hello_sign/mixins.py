@@ -157,35 +157,25 @@ class HelloSignModelMixin(ModelContentTypeMixin):
         return self.hs_process_result(resp=resp)
 
     def hs_process_result(self, resp):
-        if resp.status_code not in [200, 201, 202]:
-            raise Exception('HelloSign Api Error: %s' % resp.json())
-
-        logger.debug('HelloSign response: %s' % resp.content)
+        logger.debug('HelloSign response: %s' % resp)
 
         # post process the result
-        result = self.hs_post_process_result(resp=resp)
+        resp = self.hs_post_process_result(resp=resp)
 
-        self.hs_record_result(result=result)
+        self.hs_record_result(result=resp)
 
-        #
-        # Update with our set date_sent variable
-        #
-        resp._content = json.dumps(result)
         return resp
 
     def hs_post_process_result(self, resp):
         date_sent = str(datetime.datetime.utcnow())
-
-        result = resp.json()
-
         #
         # Add the date because HelloSign does not provide a date
         #
-        result.update({
+        resp.update({
             'date_sent': date_sent
         })
 
-        return result
+        return resp
 
     def hs_record_result(self, result):
         # setup the hs request object

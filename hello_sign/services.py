@@ -31,6 +31,13 @@ class BaseHelloSignHelper(object):
             logger.critical(msg)
             raise AuthenticationSettingsException(msg)
 
+    def validate(self, resp):
+
+        if 'error' in resp or resp.status_code not in [200, 201, 202]:
+            raise Exception('HelloSign Api Error: %s' % resp)
+
+        return resp.json()
+
 
 class HelloSignService(BaseHelloSignHelper):
     """
@@ -61,7 +68,19 @@ class HelloSignService(BaseHelloSignHelper):
         unclaimed_draft.add_doc(HelloDoc(file_path=self.document.name))
 
         # Perform the submission
-        return unclaimed_draft.create(auth=self.hellosign_authentication, **kwargs)
+        data = {}
+
+        resp = self.validate(unclaimed_draft.create(auth=self.hellosign_authentication, **kwargs))
+        data.update(resp)
+        # extract the signature_request_id
+        signature_request_id = data.get('unclaimed_draft').get('signature_request_id')
+        # get the unclaimed draft details complete with signing url
+        #unclaimed_draft_detail_resp = unclaimed_draft.detail(signature_request_id=signature_request_id, auth=self.hellosign_authentication)
+
+        # merge the two
+        #data.update(unclaimed_draft_detail_resp.json())
+
+        return data
 
     def send_for_signing(self, **kwargs):
         signature_request_id = kwargs.pop('signature_request_id', None)
@@ -87,7 +106,7 @@ class HelloSignService(BaseHelloSignHelper):
             signature.add_doc(HelloDoc(file_path=self.document.name))
 
             # Perform the submission
-            return signature.create(auth=self.hellosign_authentication, **kwargs)
+            return self.validate(signature.create(auth=self.hellosign_authentication, **kwargs))
 
 
 class HelloSignSignerService(BaseHelloSignHelper):
@@ -112,7 +131,7 @@ class HelloSignSignerService(BaseHelloSignHelper):
 
     def embedded_signature_url(self, signature_id):
         service = HelloSignEmbeddedDocumentSigningUrl(signature_id=signature_id)
-        return service.create(auth=self.hellosign_authentication)
+        return self.validate(service.create(auth=self.hellosign_authentication))
 
     def process(self):
         """
@@ -144,7 +163,7 @@ class HelloSignSignerService(BaseHelloSignHelper):
                     if expires_at is None or datetime.fromtimestamp(int(expires_at)) >= datetime.utcnow():
                         logger.debug(u'can get signature url, as current is None or has expired')
 
-                        resp = self.embedded_signature_url(signature_id=signer.get('signature_id'))
+                        resp = self.validate(self.embedded_signature_url(signature_id=signer.get('signature_id')))
                         signing_url_log = self.process_embedded_signature_url(signature=signer, response=resp)
                         #
                         # These are critical 

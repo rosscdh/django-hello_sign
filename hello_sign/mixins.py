@@ -157,6 +157,12 @@ class HelloSignModelMixin(ModelContentTypeMixin):
         return self.hs_process_result(resp=resp)
 
     def hs_process_result(self, resp):
+        if type(resp) not in [dict]:
+            if hasattr(resp, 'json') is False:
+                raise Exception('resp needs to be a dict or a requests response object with .json() method')
+            else:
+                resp = resp.json()  # assume is a requests response object
+
         logger.debug('HelloSign response: %s' % resp)
 
         # post process the result

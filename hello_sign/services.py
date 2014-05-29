@@ -32,7 +32,6 @@ class BaseHelloSignHelper(object):
             raise AuthenticationSettingsException(msg)
 
     def validate(self, resp):
-
         if 'error' in resp or resp.status_code not in [200, 201, 202]:
             raise Exception('HelloSign Api Error: %s' % resp)
 
@@ -72,13 +71,9 @@ class HelloSignService(BaseHelloSignHelper):
 
         resp = self.validate(unclaimed_draft.create(auth=self.hellosign_authentication, **kwargs))
         data.update(resp)
-        # extract the signature_request_id
-        signature_request_id = data.get('unclaimed_draft').get('signature_request_id')
-        # get the unclaimed draft details complete with signing url
-        #unclaimed_draft_detail_resp = unclaimed_draft.detail(signature_request_id=signature_request_id, auth=self.hellosign_authentication)
 
-        # merge the two
-        #data.update(unclaimed_draft_detail_resp.json())
+        # extract the signature_request_id
+        signature_request_id = data.get('unclaimed_draft', {}).get('signature_request_id', None)
 
         return data
 
@@ -163,8 +158,8 @@ class HelloSignSignerService(BaseHelloSignHelper):
                     if expires_at is None or datetime.fromtimestamp(int(expires_at)) >= datetime.utcnow():
                         logger.debug(u'can get signature url, as current is None or has expired')
 
-                        resp = self.validate(self.embedded_signature_url(signature_id=signer.get('signature_id')))
-                        signing_url_log = self.process_embedded_signature_url(signature=signer, response=resp)
+                        resp = self.embedded_signature_url(signature_id=signer.get('signature_id'))
+                        signing_url_log = self.process_embedded_signature_url(signature=signer, resp=resp)
                         #
                         # These are critical 
                         # the sign_url gets used in the search for the users sign_url
@@ -177,32 +172,26 @@ class HelloSignSignerService(BaseHelloSignHelper):
                         logger.info('signing_url status_code is invalid has not expired: %s for : %s' % (expires_at, self.signatures[i]))
                         pass
 
-    def process_embedded_signature_url(self, signature, response):
+    def process_embedded_signature_url(self, signature, resp):
         """
         Process the HS response to an embeded signature url
         """
-        if response.status_code not in [200,201]:
-            resp_json = response.json()
-            logger.critical('Could not record the signature url due to: %s, is_new: %s' % (response.status_code, resp_json))
+        resp_json = resp.get('embedded', {})
 
-        else:
-            resp_json = response.json()
-            resp_json = resp_json.get('embedded', {})
+        signature_id = signature.get('signature_id')
 
-            signature_id = signature.get('signature_id')
+        expires_at = datetime.fromtimestamp(resp_json.get('expires_at')).replace(tzinfo=utc)
+        #
+        # Create a SignUrl Object for the record
+        #
+        signing_url_log, is_new = HelloSignSigningUrl.objects.get_or_create(request=self.hellosign_request,
+                                                                            signature_id=signature_id)
+        signing_url_log.expires_at = expires_at
+        signing_url_log.data = resp_json
+        signing_url_log.save(update_fields=['expires_at', 'data'])
 
-            expires_at = datetime.fromtimestamp(resp_json.get('expires_at')).replace(tzinfo=utc)
-            #
-            # Create a SignUrl Object for the record
-            #
-            signing_url_log, is_new = HelloSignSigningUrl.objects.get_or_create(request=self.hellosign_request,
-                                                                                signature_id=signature_id)
-            signing_url_log.expires_at = expires_at
-            signing_url_log.data = resp_json
-            signing_url_log.save(update_fields=['expires_at', 'data'])
-
-            logger.debug('Record the sign_url object: %s, is_new: %s' % (signing_url_log, is_new))
-            return signing_url_log
+        logger.debug('Record the sign_url object: %s, is_new: %s' % (signing_url_log, is_new))
+        return signing_url_log
 
     def sign_url_for_signer(self, email):
         """

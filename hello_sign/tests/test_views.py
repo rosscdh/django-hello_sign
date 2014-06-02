@@ -76,7 +76,7 @@ class HelloSignWebhookEventHandlerTest(TestCase):
         return { 'json': json.dumps(data) }
 
     def get_hellosign_post_response(self):
-        return self.client.post(reverse('hellosign:hellosign_webhook_event'), self.get_webhook_event_post_data())
+        return self.client.post(reverse('hellosign_webhook_event'), self.get_webhook_event_post_data())
 
     def test_response_contains_required_text(self):
         # emulate a HelloSign Post

@@ -12,6 +12,8 @@ from .models import HelloSignRequest, HelloSignLog
 from .signals import hellosign_webhook_event_recieved
 
 import json
+import logging
+logger = logging.getLogger('django.request')
 
 
 class HelloSignWebhookEventHandler(CreateView):
@@ -35,10 +37,11 @@ class HelloSignWebhookEventHandler(CreateView):
         event_type = event_data['event'].get('event_type')
         event_time = event_data['event'].get('event_time')
 
-        assert event_hash == hmac.new(settings.HELLOSIGN_API_KEY, (event_time + event_type), hashlib.sha256).hexdigest(), 'event_hash does not match see: http://www.hellosign.com/api/reference#EventHashVerification'
+        assert event_hash == hmac.new(settings.HELLOSIGN_API_KEY, (event_time + event_type), hashlib.sha256).hexdigest(), 'event_hash does not match see: https://www.hellosign.com/api/eventsAndCallbacksWalkthrough#EventHash'
 
     def extract_json_data(self, body):
         logger.debug(u'Post from HelloSign: %s' % body)
+
         try:
             data = json.loads(body)
 
@@ -46,7 +49,7 @@ class HelloSignWebhookEventHandler(CreateView):
                 raise Exception('No event key found in HelloSign Post body')
 
             if 'signature_request' not in data:
-                raise Exception('No signature_request key found in HelloSign Post body')
+                logger.info('No signature_request key found in HelloSign Post body')
 
         except Exception as e:
             logger.critical(u'Could not extract json from request.body in HelloSignWebhookEventHandler: %s' % e)
@@ -61,7 +64,7 @@ class HelloSignWebhookEventHandler(CreateView):
         """
         data = self.extract_json_data(body=request.POST.get('json'))  # extract json
 
-        signature_request_id = data['signature_request'].get('signature_request_id')
+        signature_request_id = data.get('signature_request', {}).get('signature_request_id', None)
 
         event_type = data['event'].get('event_type')
 

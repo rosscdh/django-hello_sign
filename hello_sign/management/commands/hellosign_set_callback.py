@@ -24,7 +24,7 @@ class Command(BaseCommand):
     service = requests
 
     def handle(self, *args, **options):
-        url = reverse('hellosign:hellosign_webhook_event')
+        url = reverse('hellosign_webhook_event')
         self.site = Site.objects.get(pk=settings.SITE_ID)
         self.callback_url = urlparse.urljoin(self.site.domain, url)
 

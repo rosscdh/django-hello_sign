@@ -37,7 +37,11 @@ class HelloSignWebhookEventHandler(CreateView):
         event_type = event_data['event'].get('event_type')
         event_time = event_data['event'].get('event_time')
 
-        assert event_hash == hmac.new(settings.HELLOSIGN_API_KEY, (event_time + event_type), hashlib.sha256).hexdigest(), 'event_hash does not match see: https://www.hellosign.com/api/eventsAndCallbacksWalkthrough#EventHash'
+        assert event_hash == unicode(hmac.new(settings.HELLOSIGN_API_KEY, (event_time + event_type), hashlib.sha256).hexdigest()), 'event_hash does not match see: https://www.hellosign.com/api/eventsAndCallbacksWalkthrough#EventHash'
+        # if event_hash != unicode(hmac.new(settings.HELLOSIGN_API_KEY, (event_time + event_type), hashlib.sha256).hexdigest()):
+        #     import pdb;pdb.set_trace()
+        #     raise Exception('event_hash does not match see: https://www.hellosign.com/api/eventsAndCallbacksWalkthrough#EventHash')
+
 
     def extract_json_data(self, body):
         logger.debug(u'Post from HelloSign: %s' % body)
@@ -71,6 +75,7 @@ class HelloSignWebhookEventHandler(CreateView):
         # validate callback
         try:
             self.validate_callback(event_data=data)
+
         except Exception as e:
             return HttpResponseBadRequest('HelloSign webhook exception: %s' % e)
 

@@ -27,17 +27,29 @@ class HelloSignRequest(models.Model):
     def source_object(self):
         return self.content_object_type.get_object_for_this_type(pk=self.object_id)
 
+    @property
+    def is_claimed(self):
+        return self.data.get('is_claimed', False)
+
+    @property
+    def claim_url(self):
+        return self.data.get('claim_url', None)
+
+    @property
+    def signing_url(self):
+        return self.data.get('signature_request', {}).get('signing_url', None)
+
     def get_absolute_url(self):
         url = None
 
         # has been claimed so we should have the data
-        if self.data.get('is_claimed', False) is True and self.data.get('signature_request', None) is not None:
+        if self.is_claimed is True and self.data.get('signature_request', None) is not None:
             # return signing url
-            url = self.data.get('signature_request', {}).get('signing_url', None)
+            url = self.signing_url
 
-        elif self.unclaimed_draft_guid is not None and self.data.get('claim_url', None) is not None:
+        elif self.unclaimed_draft_guid is not None and self.claim_url is not None:
             # return the unclaimed draft url
-            url = self.data.get('claim_url')
+            url = self.claim_url
 
         return url
 

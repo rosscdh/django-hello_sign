@@ -39,7 +39,6 @@ class HelloSignWebhookEventHandler(CreateView):
 
         assert event_hash == unicode(hmac.new(settings.HELLOSIGN_API_KEY, (event_time + event_type), hashlib.sha256).hexdigest()), 'event_hash does not match see: https://www.hellosign.com/api/eventsAndCallbacksWalkthrough#EventHash'
         # if event_hash != unicode(hmac.new(settings.HELLOSIGN_API_KEY, (event_time + event_type), hashlib.sha256).hexdigest()):
-        #     import pdb;pdb.set_trace()
         #     raise Exception('event_hash does not match see: https://www.hellosign.com/api/eventsAndCallbacksWalkthrough#EventHash')
 
 
@@ -72,29 +71,33 @@ class HelloSignWebhookEventHandler(CreateView):
 
         event_type = data['event'].get('event_type')
 
-        # validate callback
-        try:
-            self.validate_callback(event_data=data)
+        if signature_request_id is None:
+            logger.error('Hellosign signature_request_id: %s is None' % signature_request_id)
 
-        except Exception as e:
-            return HttpResponseBadRequest('HelloSign webhook exception: %s' % e)
+        else:
+            # validate callback
+            try:
+                self.validate_callback(event_data=data)
 
-        logger.info('recieved webhook event: %s from HelloSign signature_request_id: %s' % (event_type, signature_request_id))
+            except Exception as e:
+                return HttpResponseBadRequest('HelloSign webhook exception: %s' % e)
 
-        # get the request object which must exist as its created when the object is sent for signing
-        hellosign_request = get_object_or_404(HelloSignRequest, signature_request_id=signature_request_id)
+            logger.info('recieved webhook event: %s from HelloSign signature_request_id: %s' % (event_type, signature_request_id))
 
-        # create log object
-        self.object = self.model.objects.create(request=hellosign_request,
-                                                event_type=event_type,
-                                                data=data)
+            # get the request object which must exist as its created when the object is sent for signing
+            hellosign_request = get_object_or_404(HelloSignRequest, signature_request_id=signature_request_id)
 
-        logger.info(u'Issuing hellosign_webhook_event_recieved signal')
-        hellosign_webhook_event_recieved.send(sender=self,
-                                              signature_request_id=signature_request_id,
-                                              event_type=event_type,
-                                              data=data,
-                                              hellosign_request=hellosign_request,
-                                              hellosign_log=self.object)
+            # create log object
+            self.object = self.model.objects.create(request=hellosign_request,
+                                                    event_type=event_type,
+                                                    data=data)
+
+            logger.info(u'Issuing hellosign_webhook_event_recieved signal')
+            hellosign_webhook_event_recieved.send(sender=self,
+                                                  signature_request_id=signature_request_id,
+                                                  event_type=event_type,
+                                                  data=data,
+                                                  hellosign_request=hellosign_request,
+                                                  hellosign_log=self.object)
 
         return render(request, self.template_name)

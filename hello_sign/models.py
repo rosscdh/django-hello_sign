@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
 
 from jsonfield import JSONField
 
@@ -25,7 +26,10 @@ class HelloSignRequest(models.Model):
 
     @property
     def source_object(self):
-        return self.content_object_type.get_object_for_this_type(pk=self.object_id)
+        try:
+            return self.content_object_type.get_object_for_this_type(pk=self.object_id)
+        except ObjectDoesNotExist:
+            return None
 
     @property
     def is_claimed(self):
@@ -68,7 +72,7 @@ class HelloSignLog(models.Model):
         ordering = ['-id']
 
     def __unicode__(self):
-        return u'%s (%s)' % (self.request, self.event_type)
+        return u'%s (%s)' % (None, self.event_type)
 
     @property
     def response_data(self):

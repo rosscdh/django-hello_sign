@@ -1,6 +1,15 @@
 # -*- coding: utf-8 -*-
+import hmac
 import json
+import hashlib
 from collections import OrderedDict
+
+
+def _get_event_hash(HELLOSIGN_API_KEY, event_time, event_type):
+    """
+    Function for testing that allows you to generate a valid hash
+    """
+    return unicode(hmac.new(HELLOSIGN_API_KEY, (event_time + event_type), hashlib.sha256).hexdigest())
 
 
 HELLOSIGN_200_RESPONSE = json.dumps({   u'signature_request': {   u'cc_email_addresses': [],
